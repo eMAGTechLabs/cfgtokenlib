@@ -72,97 +72,43 @@ class TreeCompiler
      * Recursively remove the keys of one array from another.
      *
      * @param array $toRemove The array containing the keys to be removed.
-     * @param array $from The array from which to remove keys.
+     * @param array $removeFrom The array from which to remove keys.
      */
-    public function recursiveRemoveData(array &$toRemove, array &$from)
+    public function recursiveRemoveData(array &$toRemove, array &$removeFrom)
     {
         foreach ($toRemove as $keyToRemove => $childKeysToRemove) {
             if (is_array($childKeysToRemove)) {
-                if (isset($from[$keyToRemove]) && is_array($from[$keyToRemove])) {
-                    $this->recursiveRemoveData($toRemove[$keyToRemove], $from[$keyToRemove]);
-                    continue;
+                if (isset($removeFrom[$keyToRemove]) && is_array($removeFrom[$keyToRemove])) {
+                    $this->recursiveRemoveData($toRemove[$keyToRemove], $removeFrom[$keyToRemove]);
                 }
-                return;
+            } else if (array_key_exists($keyToRemove, $removeFrom)) {
+                unset($removeFrom[$keyToRemove]);
             }
-            if (array_key_exists($keyToRemove, $from)) {
-                unset($from[$keyToRemove]);
-                continue;
-            }
-            return;
         }
     }
 
     /**
      * Recursively add and override keys from one array into another.
      *
-     * @param array $from The source array.
-     * @param array $to The destination array.
+     * @param array $addFrom The source array.
+     * @param array $addTo The destination array.
      */
-    public function recursiveAddData(array &$from, array &$to)
+    public function recursiveAddData(array &$addFrom, array &$addTo)
     {
-        if (empty($to)) {
+        if (empty($addTo)) {
             /** @noinspection PhpUnusedLocalVariableInspection */
-            $to = &$from;
+            $addTo = $addFrom;
             return;
         }
-        foreach ($from as $keyToAdd => $childKeys) {
+        foreach ($addFrom as $keyToAdd => $childKeys) {
             if (is_array($childKeys)) {
-                if (isset($to[$keyToAdd]) && is_array($to[$keyToAdd])) {
-                    $this->recursiveAddData($from[$keyToAdd], $to[$keyToAdd]);
+                if (isset($addTo[$keyToAdd]) && is_array($addTo[$keyToAdd])) {
+                    $this->recursiveAddData($addFrom[$keyToAdd], $addTo[$keyToAdd]);
                     continue;
                 }
             }
-            $to[$keyToAdd] = $from[$keyToAdd];
+            $addTo[$keyToAdd] = $addFrom[$keyToAdd];
         }
-    }
-
-    /**
-     * "Inherit" keys from a parent array in a child array.
-     * The child dictates which keys to be removed from the parent array prior to inheriting.
-     *
-     * Both the child and parent arrays must have the following structure:
-     * array(
-     *   [removeKey] => array(),
-     *   [addKey] => array(),
-     * )
-     * At least one of the above keys must be present.
-     * If the parent array is missing both keys then it's contents will be considered to belong to the addKey.
-     *
-     * @param $childArray
-     * @param $parentArray
-     */
-    public function inheritData(&$childArray, $parentArray)
-    {
-        // remove child[removeKey] from parent[addKey]
-        if ((!empty($childArray[$this->removeKey])) && (!empty($parentArray[$this->addKey]))) {
-            $this->recursiveRemoveData($childArray[$this->removeKey], $parentArray[$this->addKey]);
-        }
-
-        // add child[addKey] to parent[addKey] overriding final values if necessary
-        if ((!empty($childArray[$this->addKey])) && (isset($parentArray[$this->addKey]))) {
-            $this->recursiveAddData($childArray[$this->addKey], $parentArray[$this->addKey]);
-        }
-
-        // return modified parent[addKey]
-        if (isset($parentArray[$this->addKey])) {
-            $childArray = array(
-                $this->addKey => $parentArray[$this->addKey],
-            );
-            return;
-        }
-
-        // return child[addKey]
-        if (isset($childArray[$this->addKey])) {
-            $childArray = array(
-                $this->addKey, $childArray[$this->addKey]
-            );
-            return;
-        }
-
-        // initialize empty child array
-        $childArray = array(
-            $this->addKey => array()
-        );
     }
 
     /**
@@ -296,7 +242,14 @@ class TreeCompiler
                     );
                 case static::INCLUDE_TYPE_GROUP:
                     if (!$mustIncludeSpecificGroup) {
-                        return $xrefData;
+                        if (isset($xrefData[$this->addKey])) {
+                            return $xrefData[$this->addKey];
+                        } else {
+                            if (isset($xrefData[$this->removeKey])) {
+                                unset($xrefData[$this->removeKey]);
+                            }
+                            return $xrefData;
+                        }
                     }
                     throw new XrefResolverFormatException(
                         $xref,
@@ -308,7 +261,6 @@ class TreeCompiler
                         )
                     );
             }
-            return $xrefData;
         }
         $xrefDataInclude = &$xrefData[$this->includeKey];
 
@@ -327,7 +279,14 @@ class TreeCompiler
                     );
                 case static::INCLUDE_TYPE_GROUP:
                     if (!$mustIncludeSpecificGroup) {
-                        return $xrefData;
+                        if (isset($xrefData[$this->addKey])) {
+                            return $xrefData[$this->addKey];
+                        } else {
+                            if (isset($xrefData[$this->removeKey])) {
+                                unset($xrefData[$this->removeKey]);
+                            }
+                            return $xrefData;
+                        }
                     }
                     throw new XrefResolverFormatException(
                         $xref,
@@ -340,7 +299,6 @@ class TreeCompiler
                         )
                     );
             }
-            return $xrefData;
         }
         $xrefDataIncludeXrefs = &$xrefDataInclude[$this->includeXrefKey];
 
@@ -387,11 +345,17 @@ class TreeCompiler
                 $this->includeMainKey,
                 $visited
             );
-            $this->inheritData($result, $includeData);
+            $this->recursiveAddData($includeData, $result);
         }
         unset($visited[$xrefId]);
 
-        $this->inheritData($result, $xrefData);
+        if (isset($xrefData[$this->removeKey])) {
+            $this->recursiveRemoveData($xrefData[$this->removeKey], $result);
+        }
+
+        if (isset($xrefData[$this->addKey])) {
+            $this->recursiveAddData($xrefData[$this->addKey], $result);
+        }
 
         return $result;
     }

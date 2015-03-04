@@ -13,37 +13,8 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
         $xrefDep5 = new Xref('file', 'dep5.json');
         $xrefDep5->setData(
             array(
-                "cluster" => array(
-                    "dist" => array(
-                        "dep" => "",
-                        "master" => array(
-                            "dist" => array(
-                                "branch" => "master",
-                                "config" => array(
-                                    "apache" => array(
-                                        "members" => array(
-                                            "distapi.localhost" => array(
-                                                "folder" => "/etc/apache2/sites-available/",
-                                                "parameters" => array(
-                                                    "custom_log" => "<root>/logs/custom.log",
-                                                    "document_root" => "@json:/tree/sln_path_distapi",
-                                                    "error_log" => "<root>/logs/error.log",
-                                                    "php_error_log" => "<root>/logs/php_error.log",
-                                                    "root_path_distapi" => "@json:/tree/root_path_distapi",
-                                                    "server_name" => "@json:/tree/vhost_url_distapi",
-                                                    "session_save_path" => "<root>/__sessions__",
-                                                    "tmp_dir" => "<root>/__tmp__",
-                                                    "upload_tmp_dir" => "<root>/__upload__",
-                                                ),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ),
-                        "path" => "/var/www/",
-                    ),
-                ),
+                'key_from_dep5' => 'value from dep5',
+                'key_to_remove' => 'value from dep5',
             )
         )->setResolved(true);
 
@@ -59,44 +30,10 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
                     ),
                 ),
                 'add' => array(
-                    "cluster" => array(
-                        "dist" => array(
-                            "master" => array(
-                                "dist" => array(
-                                    "config" => array(
-                                        "apache" => array(
-                                            "options" => array(
-                                                "language" => "php",
-                                                "secure" => "False",
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
+                    'key_from_dep4' => 'value from dep4'
                 ),
                 'remove' => array(
-                    "cluster" => array(
-                        "dist" => array(
-                            "master" => array(
-                                "dist" => array(
-                                    "branch" => "REMOVE",
-                                    "config" => array(
-                                        "apache" => array(
-                                            "members" => array(
-                                                "distapi.localhost" => array(
-                                                    "parameters" => array(
-                                                        "custom_log" => "REMOVE",
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ),
-                    ),
+                    'key_to_remove' => '',
                 ),
             )
         )->setResolved(true);
@@ -115,34 +52,8 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
                     ),
                 ),
                 'add' => array(
-                    "cluster" => array(
-                        "dist" => array(
-                            "master" => array(
-                                "dist" => array(
-                                    "config" => array(
-                                        "app" => array(
-                                            "members" => array(
-                                                "config.ini" => array(
-                                                    "folder" => "<release-next>/application/configs/",
-                                                    "parameters" => array(
-                                                        "api_password_distapi_a" => "@json:/tree/api_password_distapi_a",
-                                                        "api_password_distapi_b" => "@json:/tree/api_password_distapi_b",
-                                                        "api_password_distapi_c" => "@json:/tree/api_password_distapi_c",
-                                                        "api_password_distapi_d" => "@json:/tree/api_password_distapi_d",
-                                                        "a_ip" => "@json:/tree/ip_a",
-                                                        "b_ip" => "@json:/tree/ip_b",
-                                                        "c_ip" => "@json:/tree/ip_c",
-                                                        "d_ip" => "@json:/tree/ip_d",
-                                                    ),
-                                                    "tpl" => "config.ini"
-                                                ),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ),
-                    ),
+                    'key_from_dep3' => 'value from dep3',
+                    'key_from_dep3_to_remove' => 'value from dep3 to remove',
                 ),
             )
         )->setResolved(true);
@@ -151,10 +62,10 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
         $xrefDep2->setData(
             array(
                 'add' => array(
-
+                    'key_from_dep2' => 'value from dep2'
                 ),
                 'remove' => array(
-
+                    'key_from_dep3_to_remove' => '',
                 ),
             )
         )->setResolved(true);
@@ -173,10 +84,12 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
                     ),
                 ),
                 'add' => array(
-
+                    'key_from_main' => 'value from main',
+                    'key_from_dep4' => 'value from main',
                 ),
                 'remove' => array(
-
+                    'unknown_key' => '',
+                    'key_from_dep3_to_remove' => '',
                 ),
             )
         )->setResolved(true);
@@ -190,7 +103,12 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
         $compiled = $treeCompiler->compileXref($xrefMain);
 
         $expected = array(
-
+            'key_from_dep2' => 'value from dep2',
+            'key_from_dep5' => 'value from dep5',
+            'key_to_remove' => 'value from dep5',
+            'key_from_dep4' => 'value from main',
+            'key_from_dep3' => 'value from dep3',
+            'key_from_main' => 'value from main',
         );
 
         $this->assertEquals($expected, $compiled);
