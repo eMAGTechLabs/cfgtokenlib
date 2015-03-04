@@ -9,7 +9,7 @@ use ConfigToken\TreeCompiler\XrefResolver\XrefResolverInterface;
 
 abstract class AbstractXrefResolver implements XrefResolverInterface
 {
-    public static function resolve(Xref $xref)
+    public static function resolve(Xref $xref, $force = false)
     {
         throw new \Exception(
             sprintf(

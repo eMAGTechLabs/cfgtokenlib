@@ -1,9 +1,9 @@
 <?php
 
-namespace ConfigToken\Library;
+namespace ConfigToken\TreeCompiler;
 
 
-class ArrayInheritance
+class TreeInheritance
 {
     /** @var string */
     protected $addKey;

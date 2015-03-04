@@ -61,12 +61,17 @@ class XrefCollection implements \IteratorAggregate
         return $xref;
     }
 
-    public function has(Xref $xref)
+    public function hasById($xrefId)
     {
-        return isset($this->collection[$xref->getId()]);
+        return isset($this->collection[$xrefId]);
     }
 
-    public function parse($xrefs, $overwrite = True)
+    public function has(Xref $xref)
+    {
+        return $this->hasById($xref->getId());
+    }
+
+    public function parse($xrefs, $overwrite = False, $ignore = True)
     {
         if (!is_array($xrefs)) {
             $xrefs = array($xrefs);
@@ -77,20 +82,26 @@ class XrefCollection implements \IteratorAggregate
             if ($k === false) {
                 throw new UnknownXrefTypeException(sprintf('Missing Xref type for %s = %s.', $key, $value));
             }
-            $xrefType = substr($value, $k - 1);
+            $xrefType = substr($value, 0, $k);
             $xrefLocation = substr($value, $k + 1);
-            if ((!$overwrite) && isset($this->collection[$value])) {
-                throw new AlreadyRegisteredException(
-                    sprintf(
-                        'Not allowed to overwrite Xref of type "%s" with location "%s" already in collection.',
-                        $xrefType,
-                        $xrefLocation
-                    )
-                );
-            }
             $xref = new Xref($xrefType, $xrefLocation);
-            $this->collection[$value] = $xref;
-            $parsed[$value] = $xref;
+            if (isset($this->collection[$xref->getId()])) {
+                if (!$ignore) {
+                    throw new AlreadyRegisteredException(
+                        sprintf(
+                            'Not allowed to overwrite Xref of type "%s" with location "%s" already in collection.',
+                            $xrefType,
+                            $xrefLocation
+                        )
+                    );
+                }
+                if ($overwrite && (!$ignore)) {
+                    $this->collection[$xref->getId()] = $xref;
+                }
+            } else {
+                $this->collection[$xref->getId()] = $xref;
+            }
+            $parsed[$key] = $this->collection[$xref->getId()];
         }
         return $parsed;
     }

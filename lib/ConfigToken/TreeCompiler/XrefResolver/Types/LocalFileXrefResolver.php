@@ -14,8 +14,11 @@ class LocalFileXrefResolver extends AbstractXrefResolver
         return 'file';
     }
 
-    public static function resolve(Xref $xref)
+    public static function resolve(Xref $xref, $force = false)
     {
+        if ($xref->isResolved() && (!$force)) {
+            return;
+        }
         static::matchType($xref);
         if (!$xref->hasLocation()) {
             throw new XrefResolverFetchException($xref);

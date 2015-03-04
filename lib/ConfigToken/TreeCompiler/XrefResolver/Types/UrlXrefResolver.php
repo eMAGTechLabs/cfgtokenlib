@@ -15,8 +15,11 @@ class UrlXrefResolver extends AbstractXrefResolver
         return 'url';
     }
 
-    public static function resolve(Xref $xref)
+    public static function resolve(Xref $xref, $force = false)
     {
+        if ($xref->isResolved() && (!$force)) {
+            return;
+        }
         static::matchType($xref);
         if (!$xref->hasLocation()) {
             throw new XrefResolverFetchException($xref);

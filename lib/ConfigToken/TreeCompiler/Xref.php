@@ -41,16 +41,16 @@ class Xref
         return $this;
     }
 
-    public function resolve()
+    public function resolve($force = false)
     {
-        if ($this->isResolved()) {
+        if ($this->isResolved() && (!$force)) {
             return;
         }
         if (!$this->hasType()) {
             throw new \Exception('Unable to resolve Xref without type.');
         }
         $resolver = XrefResolverFactory::getByType($this->type);
-        $resolver::resolve($this);
+        $resolver::resolve($this, $force);
     }
 
     public function hasType()
