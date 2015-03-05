@@ -23,6 +23,35 @@ $tokenParser = new TokenParser();
 $tokens = $tokenParser->parseString($input);
 ```
 
+or explicitly setting token delimiters and filter delimiters:
+
+```php
+$tokenParser = new TokenParser('|', null, '[[', ']]');
+
+// also possible via setters
+$tokenParser
+    ->setFilterDelimiter('|')
+    ->setTokenPrefix('[[')
+    ->setTokenSuffix(']]')
+;
+
+$tokens = $tokenParser->parseString($input);
+```
+
+or explicitly setting token regex and filter delimiters:
+
+```php
+$tokenParser = new TokenParser('|', '/\[\[s+(.*?)\]\]/');
+
+// also possible via setters
+$tokenParser
+    ->setFilterDelimiter('|')
+    ->setTokenRegex('/\[\[s+(.*?)\]\]/')
+;
+
+$tokens = $tokenParser->parseString($input);
+```
+
 example input:
 ```
 The [[attribute|lower]] [[color]] [[mammal|upper]] jumps over the [[target]].\n
