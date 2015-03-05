@@ -1,6 +1,6 @@
 <?php
 
-namespace ConfigToken\TokenResolver;
+namespace ConfigToken;
 
 use ConfigToken\TokenFilter\TokenFilterFactory;
 use ConfigToken\TokenFilter\Exception\UnknownFilterException;
@@ -8,6 +8,7 @@ use ConfigToken\TokenResolver\Exception\OutOfScopeException;
 use ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException;
 use ConfigToken\TokenResolver\Exception\TokenFormatException;
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
+use ConfigToken\TokenResolver\TokenResolverInterface;
 
 
 class Token

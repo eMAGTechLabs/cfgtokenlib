@@ -31,6 +31,9 @@ class PhpTreeSerializer extends AbstractTreeSerializer
     }
 
     /**
+     * Check syntax of the given PHP code string.
+     * @param string $code The PHP code for which to perform syntax checking.
+     * @return array|boolean Array of syntax errors or true/false to indicate success/unknown failure.
      * @codeCoverageIgnore
      */
     protected static function syntaxCheck($code){

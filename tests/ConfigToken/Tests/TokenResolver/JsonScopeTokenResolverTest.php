@@ -2,7 +2,6 @@
 
 namespace ConfigToken\Tests\TokenResolver;
 
-use ConfigToken\Tests\TokenResolver\TestObjectValue;
 use ConfigToken\TokenInjector;
 use ConfigToken\TokenParser;
 use ConfigToken\TokenResolver\ScopeValueSerializers\JsonScopeTokenValueSerializer;

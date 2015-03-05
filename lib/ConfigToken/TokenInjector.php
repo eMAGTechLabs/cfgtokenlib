@@ -2,11 +2,11 @@
 
 namespace ConfigToken;
 
-use ConfigToken\TokenResolver\Token;
-use ConfigToken\TokenResolver\TokenCollection;
 use ConfigToken\TokenResolver\Exception\UnknownTokenSourceException;
 
-
+/**
+ * Provides a method to inject the resolved token values collection back into the original string.
+ */
 class TokenInjector
 {
     /**

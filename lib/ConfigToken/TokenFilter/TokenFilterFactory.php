@@ -11,6 +11,9 @@ use ConfigToken\TokenFilter\Types\TokenFilterToUnderscore;
 use ConfigToken\TokenFilter\Types\TokenFilterToUppercase;
 
 
+/**
+ * Factory class used to hold and register token value filters.
+ */
 class TokenFilterFactory
 {
     /** @var TokenFilterInterface[] */
@@ -56,6 +59,11 @@ class TokenFilterFactory
         throw new UnknownFilterException($filterName);
     }
 
+    /**
+     * Used internally to register a new token filter implementation without performing checks.
+     *
+     * @param TokenFilterInterface $tokenFilter
+     */
     protected static function internalRegister(TokenFilterInterface $tokenFilter)
     {
         static::$registeredByName[$tokenFilter::getName()] = $tokenFilter;

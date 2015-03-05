@@ -1,14 +1,18 @@
 <?php
 
-namespace ConfigToken\TokenResolver;
+namespace ConfigToken;
 
 use ConfigToken\TokenFilter\Exception\UnknownFilterException;
 use ConfigToken\TokenResolver\Exception\OutOfScopeException;
 use ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException;
 use ConfigToken\TokenResolver\Exception\TokenFormatException;
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
+use ConfigToken\TokenResolver\TokenResolverInterface;
 
-
+/**
+ * Generic token collection class used in conjunction with a given token resolver instance to resolve
+ * tokens to values and apply the given filters.
+ */
 class TokenCollection implements \IteratorAggregate
 {
     /** @var Token[] */

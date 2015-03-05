@@ -8,7 +8,6 @@ use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFormatException;
 use ConfigToken\TreeCompiler\XrefResolver\Types\UrlXrefResolver;
 use ConfigToken\TreeCompiler\XrefResolver\Types\LocalFileXrefResolver;
-use ConfigToken\TreeCompiler\Exceptions\XrefNotFoundException;
 use ConfigToken\TreeCompiler\Xref;
 use ConfigToken\TreeCompiler\XrefCollection;
 use ConfigToken\TreeSerializer\TreeSerializerFactory;

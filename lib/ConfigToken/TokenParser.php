@@ -2,10 +2,9 @@
 
 namespace ConfigToken;
 
-use ConfigToken\TokenResolver\Token;
-use ConfigToken\TokenResolver\TokenCollection;
-
-
+/**
+ * Configurable string parser class used to extract a collection of tokens.
+ */
 class TokenParser
 {
     /** @var string */

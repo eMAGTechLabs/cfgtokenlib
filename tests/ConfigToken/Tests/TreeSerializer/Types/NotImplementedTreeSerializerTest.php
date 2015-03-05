@@ -2,7 +2,6 @@
 
 namespace ConfigToken\Tests\TreeSerializer\Types;
 
-use ConfigToken\TreeSerializer\Types\PhpTreeSerializer;
 use ConfigToken\TreeSerializer\Types\XmlTreeSerializer;
 use ConfigToken\TreeSerializer\Types\YmlTreeSerializer;
 

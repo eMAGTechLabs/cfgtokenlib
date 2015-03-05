@@ -3,6 +3,9 @@
 namespace ConfigToken\TokenFilter;
 
 
+/**
+ * Interface to create custom token value filters.
+ */
 interface TokenFilterInterface
 {
     /**

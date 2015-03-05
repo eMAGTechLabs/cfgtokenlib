@@ -7,11 +7,7 @@ use ConfigToken\TokenResolver\TokenResolverInterface;
 
 
 /**
- * Class RegisteredTokenResolver
- *
- * Resolve tokens based on a list of registered token names and values.
- *
- * @package ConfigToken\Library\TokenResolver
+ * Resolves token values based on a given uni-dimensional associative array (token name => value).
  */
 class RegisteredTokenResolver implements TokenResolverInterface
 {

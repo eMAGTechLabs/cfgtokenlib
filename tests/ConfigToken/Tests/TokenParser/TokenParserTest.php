@@ -6,8 +6,8 @@ use ConfigToken\TokenFilter\Exception\UnknownFilterException;
 use ConfigToken\TokenInjector;
 use ConfigToken\TokenParser;
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
-use ConfigToken\TokenResolver\Token;
-use ConfigToken\TokenResolver\TokenCollection;
+use ConfigToken\Token;
+use ConfigToken\TokenCollection;
 use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
 
 
@@ -150,8 +150,8 @@ class TokenParserTest extends \PHPUnit_Framework_TestCase
         $tokens->remove($token6);
         $this->assertFalse($tokens->has($token6->getTokenString()));
 
+        unset($result);
         $result = $tokens->findByName('token4');
-        /** @var Token $token4 */
         $token4 = current($result);
         $this->assertTrue($token4->getIsResolved());
         $this->assertTrue($token4->getIsFiltered());

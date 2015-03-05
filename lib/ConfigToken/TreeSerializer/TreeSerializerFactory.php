@@ -91,6 +91,11 @@ class TreeSerializerFactory
         }
     }
 
+    /**
+     * Used internally to register a new tree serializer implementation without performing checks.
+     *
+     * @param TreeSerializerInterface $treeSerializer
+     */
     protected static function internalRegister(TreeSerializerInterface $treeSerializer)
     {
         static::$registeredByContentType[$treeSerializer::getContentType()] = $treeSerializer;

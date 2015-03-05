@@ -3,9 +3,11 @@
 namespace ConfigToken\TokenResolver;
 
 
+/**
+ * Interface to create custom token value resolvers.
+ */
 interface TokenResolverInterface
 {
-
     /**
      * Check if the token value with the given name is registered.
      *
