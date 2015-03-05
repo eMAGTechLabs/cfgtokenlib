@@ -119,7 +119,7 @@ The Fox is QUICK.
 
 Injection may be done in multiple steps on the result string without the need of re-parsing the tokens.
 
-Regardless of the method thorough which the token values are resolved, either custom or predefined value filters may be applied prior to injecting.
+Regardless of the method through which the token values are resolved, either custom or predefined value filters may be applied prior to injecting.
 
 
 ## Tree Compiler
