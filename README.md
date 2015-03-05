@@ -1,5 +1,98 @@
 # ConfigToken Library
 
+The ConfigToken library provides the following classes to aid in token parsing, value formatting and injection:
+- **TokenParser**: configurable string parser class used to extract a collection of tokens.
+- **TokenCollection**: generic token collection class used in conjunction with a given token resolver instance to resolve tokens to values and apply the given filters.
+- **TokenInjector**: provides a method to inject the resolved token values collection back into the original string.
+
+a set of interfaces and factories to create custom resolvers and filters:
+- **TokenResolverInterface**: interface to create custom token value resolvers;
+- **TokenFilterInterface**: interface to create custom token value filters;
+- **TokenFilterFactory**: factory class used to hold and register token value filters.
+
+and base classes to extend and customize two of the most common use-cases:
+- **RegisteredTokenResolver**: resolves token values based on a given uni-dimensional associative array (token name => value).
+- **ScopeTokenResolver**: resolves token values based on a given mutli-dimensional associative array.
+
+## The Token Parser
+
+The token parser may be used to parse strings and extract a collection of tokens based on a configurable regular expression.
+
+```php
+$tokenParser = new TokenParser();
+$tokens = $tokenParser->parseString($input);
+```
+
+example input:
+```
+The [[attribute|lower]] [[color]] [[mammal|upper]] jumps over the [[target]].\n
+The [[mammal]] is [[attribute]].
+```
+
+identified tokens:
+```
+    [[attribute|lower]]
+        token name: "attribute"
+        filters: ["lower"]
+        offsets: [4]
+    [[color]]
+        token name: "color"
+        offsets: [24]
+    [[mammal|upper]]
+        token name: "mammal"
+        filters: ["upper"]
+        offsets: [34]
+    [[target]]
+        token name: "target"
+        offsets: [66]
+    [[mammal]]
+        token name: "mammal"
+        offsets: [82]
+    [[attribute]]
+        token name: "attribute"
+        offsets: [96]
+```
+
+The extracted tokens may later be resolved directly by setting their values.
+
+```php
+$mammal = $tokens->findByName('mammal');
+foreach ($mammal as $token) {
+    $token
+        ->setUnfilteredTokenValue('Fox')
+        ->applyFilters()
+    ;
+}
+$output = TokenInjector::injectString($input, $tokens);
+```
+
+```
+The [[attribute|lower]] [[color]] FOX jumps over the [[target]].\n
+The Fox is [[attribute]].
+```
+
+or by using a predefined or a custom TokenResolver.
+
+```php
+$resolver = new RegisteredTokenResolver(
+    'attribute' => 'QUICK',
+    'color' => 'brown',
+    'target' => 'lazy dog',
+);
+$tokens->resolve($resolver);
+$output = TokenInjector::injectString($output, $tokens);
+```
+
+```
+The quick brown FOX jumps over the lazy dog.\n
+The Fox is QUICK.
+```
+
+Injection may be done in multiple steps on the result string without the need of re-parsing the tokens.
+
+Regardless of the method thorough which the token values are resolved, either custom or predefined value filters may be applied prior to injecting.
+
+
 ## Tree Compiler
 
 Usage example:
