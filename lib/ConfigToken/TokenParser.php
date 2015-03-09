@@ -86,6 +86,19 @@ class TokenParser
     }
 
     /**
+     * Create and set the token regex from the given prefix and suffix.
+     *
+     * @param string $prefix
+     * @param string $suffix
+     * @return $this
+     */
+    public function setTokenRegexByDelimiters($prefix, $suffix)
+    {
+        $this->setTokenRegex(static::getTokenRegexByDelimiters($prefix, $suffix));
+        return $this;
+    }
+
+    /**
      * Parse the given string and extract all tokens.
      *
      * @param string $string The string to parse.
