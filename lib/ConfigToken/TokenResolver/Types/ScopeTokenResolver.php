@@ -44,7 +44,7 @@ use ConfigToken\TokenResolver\TokenResolverInterface;
  *
  * @package ConfigToken\Library\TokenResolver
  */
-class ScopeTokenResolver implements TokenResolverInterface
+class ScopeTokenResolver extends AbstractTokenResolver
 {
     /** @var string */
     protected $scopeTokenName;
@@ -328,7 +328,7 @@ class ScopeTokenResolver implements TokenResolverInterface
      * Get the value for the given token.
      *
      * @param string $tokenName The name of the token to be resolved to a value.
-     * @param boolean $ignoreUnknownTokens If True, passing an unresolvable token will not cause an exception.
+     * @param boolean|null $ignoreUnknownTokens If True, passing an unresolvable token will not cause an exception.
      * @param string|null $defaultValue The value returned if the token is not found and set to ignore unknown tokens.
      * @throws OutOfScopeException
      *   If the path portion of the token name does not exist in the given scope and
@@ -343,8 +343,11 @@ class ScopeTokenResolver implements TokenResolverInterface
      * @throws \Exception
      * @return null|string
      */
-    public function getTokenValue($tokenName, $ignoreUnknownTokens = false, $defaultValue = null)
+    public function getTokenValue($tokenName, $ignoreUnknownTokens = null, $defaultValue = null)
     {
+        if (!isset($ignoreUnknownTokens)) {
+            $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
+        }
         $t = explode($this->scopeTokenNameDelimiter, $tokenName);
         $token = $t[0];
         if ($token !== $this->scopeTokenName) {

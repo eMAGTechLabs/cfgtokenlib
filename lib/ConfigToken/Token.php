@@ -386,6 +386,7 @@ class Token
         $this->unresolvedFilters = $unresolvedFilters;
         return $this;
     }
+
     /**
      * Attempt to resolve and filter the token value.
      *
