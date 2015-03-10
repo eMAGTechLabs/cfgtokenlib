@@ -2,6 +2,7 @@
 
 namespace ConfigToken\TreeCompiler;
 
+use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefTypeException;
 use ConfigToken\TreeCompiler\XrefResolver\XrefResolverFactory;
 
 
@@ -27,6 +28,16 @@ class Xref
     {
         $this->type = $type;
         $this->location = $location;
+    }
+
+    public static function makeFromTypeAndLocationString($typeAndLocation, $delimiter)
+    {
+        $k = strpos($typeAndLocation, $delimiter);
+        if ($k === false) {
+            throw new \Exception(sprintf('Missing Xref type in "%s".', $typeAndLocation));
+        }
+        $xref = new static(substr($typeAndLocation, 0, $k), substr($typeAndLocation, $k + 1));
+        return $xref;
     }
 
     public function isResolved()
@@ -80,9 +91,14 @@ class Xref
         return $this->location;
     }
 
+    public static function computeId($type, $location)
+    {
+        return md5($type . $location);
+    }
+
     public function getId()
     {
-        return md5($this->type . $this->location);
+        return static::computeId($this->type, $this->location);
     }
 
     public function setLocation($value)

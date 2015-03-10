@@ -9,6 +9,20 @@ namespace ConfigToken\TokenResolver;
 interface TokenResolverInterface
 {
     /**
+     * Get the token resolver type identifier.
+     *
+     * @return string
+     */
+    public static function getType();
+
+    /**
+     * Get the token resolver base type identifier.
+     *
+     * @return string
+     */
+    public static function getBaseType();
+
+    /**
      * Check if the token value with the given name is registered.
      *
      * @param string $tokenName The identifier of the token value.

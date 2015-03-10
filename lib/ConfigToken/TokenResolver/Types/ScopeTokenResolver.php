@@ -65,14 +65,56 @@ class ScopeTokenResolver implements TokenResolverInterface
     protected $serializer;
 
 
-    function __construct($scopeTokenName, $scope = null, $ignoreOutOfScope = False)
+    function __construct($scopeTokenName = null, $scope = null, $ignoreOutOfScope = False)
     {
-        $this->scopeTokenName = $scopeTokenName;
+        $this->setScopeTokenName($scopeTokenName);
         $this->setIgnoreOutOfScope($ignoreOutOfScope);
 
         if (isset($scope)) {
             $this->setScope($scope);
         }
+    }
+
+    /**
+     * Get the token resolver type identifier.
+     *
+     * @return string
+     */
+    public static function getType()
+    {
+        return self::getBaseType();
+    }
+
+    /**
+     * Get the token resolver base type identifier.
+     *
+     * @return string
+     */
+    public static function getBaseType()
+    {
+        return 'scope';
+    }
+
+    /**
+     * Check if the scope token name is set.
+     *
+     * @return boolean
+     */
+    public function hasScopeTokenName()
+    {
+        return isset($this->scopeTokenName);
+    }
+
+    /**
+     * Set the scope token name.
+     *
+     * @param string $value
+     * @return $this
+     */
+    public function setScopeTokenName($value)
+    {
+        $this->scopeTokenName = $value;
+        return $this;
     }
 
     /**

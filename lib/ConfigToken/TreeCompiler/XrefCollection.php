@@ -11,9 +11,6 @@ class XrefCollection implements \IteratorAggregate
     /** @var Xref[] */
     protected $collection;
 
-    /** @var string */
-    protected $typeDelimiter = ':';
-
     /**
      * (PHP 5 &gt;= 5.0.0)<br/>
      * Retrieve an external iterator
@@ -71,27 +68,29 @@ class XrefCollection implements \IteratorAggregate
         return $this->hasById($xref->getId());
     }
 
-    public function parse($xrefs, $overwrite = False, $ignore = True)
+    public function getById($xrefId)
+    {
+        if (!$this->hasById($xrefId)) {
+            throw new \Exception(sprintf('Xref with Id "%s" not in collection.', $xrefId));
+        }
+        return $this->collection[$xrefId];
+    }
+
+    public function parse($xrefs, $typeDelimiter, $overwrite = False, $ignore = True)
     {
         if (!is_array($xrefs)) {
             $xrefs = array($xrefs);
         }
         $parsed = array();
         foreach ($xrefs as $key => $value) {
-            $k = strpos($value, $this->typeDelimiter);
-            if ($k === false) {
-                throw new UnknownXrefTypeException(sprintf('Missing Xref type for %s = %s.', $key, $value));
-            }
-            $xrefType = substr($value, 0, $k);
-            $xrefLocation = substr($value, $k + 1);
-            $xref = new Xref($xrefType, $xrefLocation);
+            $xref = Xref::makeFromTypeAndLocationString($value, $typeDelimiter);
             if (isset($this->collection[$xref->getId()])) {
                 if (!$ignore) {
                     throw new AlreadyRegisteredException(
                         sprintf(
                             'Not allowed to overwrite Xref of type "%s" with location "%s" already in collection.',
-                            $xrefType,
-                            $xrefLocation
+                            $xref->getType(),
+                            $xref->getLocation()
                         )
                     );
                 }

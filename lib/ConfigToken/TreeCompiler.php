@@ -3,6 +3,10 @@
 namespace ConfigToken;
 
 use ConfigToken\Exception\NotRegisteredException;
+use ConfigToken\TokenResolver\TokenResolverFactory;
+use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
+use ConfigToken\TokenResolver\Types\ScopeTokenResolver;
+use ConfigToken\TreeCompiler\Exception\TreeCompilerFormatException;
 use ConfigToken\TreeCompiler\Exceptions\CircularReferenceException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFormatException;
@@ -10,6 +14,7 @@ use ConfigToken\TreeCompiler\XrefResolver\Types\UrlXrefResolver;
 use ConfigToken\TreeCompiler\XrefResolver\Types\LocalFileXrefResolver;
 use ConfigToken\TreeCompiler\Xref;
 use ConfigToken\TreeCompiler\XrefCollection;
+use ConfigToken\TreeCompiler\XrefTokenResolvers;
 use ConfigToken\TreeSerializer\TreeSerializerFactory;
 
 
@@ -20,11 +25,48 @@ class TreeCompiler
     /** @var string */
     protected $includeXrefKey = 'xref';
     /** @var string */
+    protected $includeXrefTypeKey = 'type';
+    /** @var string */
+    protected $includeXrefLocationKey = 'src';
+    /** @var string */
+    protected $includeXrefResolversKey = 'resolve';
+    /** @var string */
     protected $includeMainKey = 'main';
+    /** @var string */
+    protected $xrefTokenResolverTypeKey = 'type';
+    /** @var string */
+    protected $xrefTokenResolverOptionsKey = 'options';
+    /** @var string */
+    protected $xrefTokenResolverValuesKey = 'values';
+    /** @var string */
+    protected $xrefTokenResolverValuesXrefKey = 'values-xref';
+    /** @var string */
+    protected $xrefTokenResolverOptionIgnoreUnknownTokensKey = 'ignore-unknown-tokens';
+    /** @var string */
+    protected $xrefTokenResolverOptionIgnoreUnknownFiltersKey = 'ignore-unknown-filters';
+    /** @var string */
+    protected $xrefTokenResolverOptionTokenRegexKey = 'token-regex';
+    /** @var string */
+    protected $xrefTokenResolverOptionTokenPrefixKey = 'token-prefix';
+    /** @var string */
+    protected $xrefTokenResolverOptionTokenSuffixKey = 'token-suffix';
+    /** @var string */
+    protected $xrefTokenResolverOptionTokenFilterDelimiterKey = 'token-filter-delimiter';
+    /** @var string */
+    protected $xrefTokenResolverOptionScopeTokenNameKey = 'scope-token-name';
+    /** @var string */
+    protected $xrefTokenResolverOptionScopeTokenNameDelimiterKey = 'scope-token-name-delimiter';
+    /** @var string */
+    protected $xrefTokenResolverOptionScopeTokenLevelDelimiterKey = 'scope-token-level-delimiter';
+    /** @var string */
+    protected $xrefTokenResolverOptionKeys = array();
+
     /** @var string */
     protected $removeKey = 'remove';
     /** @var string */
     protected $addKey = 'add';
+    /** @var string */
+    protected $xrefTypeAndLocationDelimiter = ':';
 
     /** @var XrefCollection */
     protected $xrefs;
@@ -38,6 +80,27 @@ class TreeCompiler
             $xrefs = new XrefCollection();
         }
         $this->xrefs = $xrefs;
+        $this->xrefTokenResolverOptionKeys = array(
+            RegisteredTokenResolver::getBaseType() => array(
+                $this->xrefTokenResolverOptionIgnoreUnknownTokensKey => 'boolean',
+                $this->xrefTokenResolverOptionIgnoreUnknownFiltersKey => 'boolean',
+                $this->xrefTokenResolverOptionTokenRegexKey => 'string',
+                $this->xrefTokenResolverOptionTokenPrefixKey => 'string',
+                $this->xrefTokenResolverOptionTokenSuffixKey => 'string',
+                $this->xrefTokenResolverOptionTokenFilterDelimiterKey => 'string',
+            ),
+            ScopeTokenResolver::getBaseType() => array(
+                $this->xrefTokenResolverOptionIgnoreUnknownTokensKey => 'boolean',
+                $this->xrefTokenResolverOptionIgnoreUnknownFiltersKey => 'boolean',
+                $this->xrefTokenResolverOptionTokenRegexKey => 'string',
+                $this->xrefTokenResolverOptionTokenPrefixKey => 'string',
+                $this->xrefTokenResolverOptionTokenSuffixKey => 'string',
+                $this->xrefTokenResolverOptionTokenFilterDelimiterKey => 'string',
+                $this->xrefTokenResolverOptionScopeTokenNameKey => 'string',
+                $this->xrefTokenResolverOptionScopeTokenNameDelimiterKey => 'string',
+                $this->xrefTokenResolverOptionScopeTokenLevelDelimiterKey => 'string',
+            )
+        );
     }
 
     public function getXrefs()
@@ -164,10 +227,132 @@ class TreeCompiler
         return $result;
     }
 
+    protected function validateXrefTokenResolverOptions($xrefKey, $tokenResolverDefinitionIndex, $tokenResolverBaseType,
+                                                        $options)
+    {
+        if (!is_array($options)) {
+            throw new \Exception(
+                sprintf(
+                    'The "%s" key for token resolver definition at index %d for Xref key "%s" must be an associative array.',
+                    $this->xrefTokenResolverOptionsKey,
+                    $tokenResolverDefinitionIndex,
+                    $xrefKey
+                )
+            );
+        }
+        $unknown = array();
+        $found = array();
+        foreach ($options as $optionKey => $optionValue) {
+            if (!isset($this->xrefTokenResolverOptionKeys[$tokenResolverBaseType][$optionKey])) {
+                $unknown[] = $optionKey;
+            } else {
+                $found[$optionKey] = $optionValue;
+            }
+        }
+        if (count($unknown) > 0) {
+            throw new \Exception(
+                sprintf(
+                    'Unknown option(s) "%s" for token resolver definition based on the "%s" type identifier at ' .
+                    'index %d for Xref key "%s".',
+                    implode('", "', $unknown),
+                    $tokenResolverBaseType,
+                    $this->xrefTokenResolverOptionsKey,
+                    $tokenResolverDefinitionIndex,
+                    $xrefKey
+                )
+            );
+        }
+        foreach ($found as $optionKey => $optionValue) {
+            $valueType = gettype($optionValue);
+            $expectedValueType = $this->xrefTokenResolverOptionKeys[$tokenResolverBaseType][$optionKey];
+            if ($valueType != $expectedValueType) {
+                throw new \Exception(
+                    sprintf(
+                        'Wrong type "%s" instead of "%s" for option "%s" for token resolver definition based on the ' .
+                        '"%s" type identifier at index %d for Xref key "%s".',
+                        $valueType,
+                        $expectedValueType,
+                        $tokenResolverBaseType,
+                        $this->xrefTokenResolverOptionsKey,
+                        $tokenResolverDefinitionIndex,
+                        $xrefKey
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * Parse the array corresponding to the $includeKey:$includeXrefKey:<xref name>:$includeXrefResolveKey.
+     *
+     * @param array $tokenResolversInfo
+     * @return XrefTokenResolvers
+     * @throws \Exception
+     */
+    protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo)
+    {
+        $result = new XrefTokenResolvers();
+        $tokenResolverDefinitionIndex = 0;
+        foreach ($tokenResolversInfo as $tokenResolverInfo) {
+            if (!is_array($tokenResolversInfo)) {
+                throw new \Exception(
+                    sprintf(
+                        'Token resolver definition at index %d for Xref key "%s" must be associative arrays.',
+                        $tokenResolverDefinitionIndex,
+                        $xrefKey
+                    )
+                );
+            }
+            if (!isset($tokenResolverInfo[$this->xrefTokenResolverTypeKey])) {
+                throw new \Exception(
+                    sprintf(
+                        'Token resolver definition at index %d for Xref key "%s" is missing the "%s" type identifier key.',
+                        $tokenResolverDefinitionIndex,
+                        $xrefKey,
+                        $this->xrefTokenResolverTypeKey
+                    )
+                );
+            }
+            $tokenResolverType = $tokenResolverInfo[$this->xrefTokenResolverTypeKey];
+            if (!TokenResolverFactory::isRegisteredByType($tokenResolverType)) {
+                throw new \Exception(
+                    sprintf(
+                        'Unknown token resolver type identifier "%s" at index %d for Xref key "%s".',
+                        $tokenResolverType,
+                        $tokenResolverDefinitionIndex,
+                        $xrefKey
+                    )
+                );
+            }
+            if ((!isset($tokenResolverInfo[$this->xrefTokenResolverValuesKey])) && (!isset($tokenResolverInfo[$this->xrefTokenResolverValuesXrefKey]))) {
+                throw new \Exception(
+                    sprintf(
+                        'Token resolver definition at index %d for Xref key "%s" does not have a "%s" key or a "%s" key.',
+                        $tokenResolverDefinitionIndex,
+                        $xrefKey,
+                        $this->xrefTokenResolverValuesKey,
+                        $this->xrefTokenResolverValuesXrefKey
+                    )
+                );
+            }
+            if (isset($tokenResolverInfo[$this->xrefTokenResolverOptionsKey])) {
+                $this->validateXrefTokenResolverOptions(
+                    $xrefKey,
+                    $tokenResolverDefinitionIndex,
+                    TokenResolverFactory::getBaseTypeForType($tokenResolverType),
+                    $tokenResolverInfo[$this->xrefTokenResolverOptionsKey]
+                );
+            }
+            $tokenResolverDefinitionIndex++;
+        }
+        return $result;
+    }
+
     /**
      * Recursively resolve Xrefs and compile data.
      *
      * @param Xref $xref
+     * @param XrefTokenResolvers $tokenResolvers
      * @param string|null $includeType
      * @param string|array|null $includeTypeValue
      * @param array $visited
@@ -180,8 +365,11 @@ class TreeCompiler
      * @throws XrefResolverFormatException
      * @throws \Exception
      */
-    protected function recursiveCompileXref(Xref $xref, $includeType = null, $includeTypeValue = null, &$visited)
+    protected function recursiveCompileXref(Xref $xref, XrefTokenResolvers $tokenResolvers = null, $includeType = null, $includeTypeValue = null, &$visited)
     {
+        static $XREF_KEY = 0;
+        static $XREF_RESOLVERS_KEY = 1;
+
         if (!isset($includeType)) {
             $includeType = static::INCLUDE_TYPE_GROUP;
         }
@@ -325,10 +513,64 @@ class TreeCompiler
 
         $xrefId = $xref->getId();
         $visited[$xrefId] = sprintf('%s:%s', $xref->getType(), $xref->getLocation());
-        /** @var Xref[] $includedXrefs */
-        $includedXrefs = $this->xrefs->parse($xrefsToBeParsed);
+
+        $requiredKeys = array($this->includeXrefTypeKey, $this->includeXrefLocationKey);
+        $xrefsToBeResolved = array();
+        foreach ($xrefsToBeParsed as $xrefKey => $xrefInfo) {
+            if (gettype($xrefInfo) == 'string') {
+                $xref = Xref::makeFromTypeAndLocationString($xrefInfo, $this->xrefTypeAndLocationDelimiter);
+            } else if (!is_array($xrefInfo)) {
+                throw new TreeCompilerFormatException(
+                    sprintf(
+                        'The Xref definition key "%s" must be a string with the format xref_type%sxref_location ' .
+                        'or an associative array with the keys "%s" for type and "%s" for location.',
+                        $this->xrefTypeAndLocationDelimiter,
+                        $this->includeXrefTypeKey,
+                        $this->includeXrefLocationKey
+                    )
+                );
+            }
+            foreach ($requiredKeys as $requiredKey) {
+                if (!isset($xrefInfo[$requiredKey])) {
+                    throw new TreeCompilerFormatException(
+                        sprintf(
+                            'The "%s" key is missing from the Xref definition with the key "%s".',
+                            $requiredKey,
+                            $xrefKey
+                        )
+                    );
+                }
+            }
+
+            $xrefType = $xrefInfo[$this->includeXrefTypeKey];
+            $xrefLocation = $xrefInfo[$this->includeXrefLocationKey];
+            $xrefId = Xref::computeId($xrefType, $xrefLocation);
+            try {
+                $xref = $this->xrefs->getById($xref->getId());
+            } catch (\Exception $e) {
+                $xref = new Xref($xrefType, $xrefLocation);
+            }
+
+            if (isset($xrefInfo[$this->includeXrefResolversKey])) {
+                $xrefTokenResolvers = $this->parseXrefTokenResolverDefinitions(
+                    $xrefKey,
+                    $xrefInfo[$this->includeXrefResolversKey]
+                );
+            } else {
+                $xrefTokenResolvers = null;
+            }
+
+            $xrefsToBeResolved[] = array(
+                $XREF_KEY => $xref,
+                $XREF_RESOLVERS_KEY => $xrefTokenResolvers
+            );
+        }
+
+        /** @var array $includedXrefs */
         $result = array();
-        foreach ($includedXrefs as $includedXref) {
+        foreach ($xrefsToBeResolved as $xrefToBeResolved) {
+            /** @var Xref $includedXref */
+            $includedXref = $xrefToBeResolved[$XREF_KEY];
             if (isset($visited[$includedXref->getId()])) {
                 throw new CircularReferenceException(
                     sprintf(
@@ -340,10 +582,14 @@ class TreeCompiler
             }
             $includeData = $this->recursiveCompileXref(
                 $includedXref,
+                $xrefToBeResolved[$XREF_RESOLVERS_KEY],
                 static::INCLUDE_TYPE_GROUP,
                 $this->includeMainKey,
                 $visited
             );
+            if (isset($tokenResolvers)) {
+                $tokenResolvers->applyToArray($includeData);
+            }
             $this->recursiveAddData($includeData, $result);
         }
         unset($visited[$xrefId]);
@@ -362,7 +608,7 @@ class TreeCompiler
     public function compileXref(Xref $xref, $includeType = null, $includeTypeValue = null)
     {
         $visited = array();
-        $compiledData = $this->recursiveCompileXref($xref, $includeType, $includeTypeValue, $visited);
+        $compiledData = $this->recursiveCompileXref($xref, null, $includeType, $includeTypeValue, $visited);
         return $compiledData;
     }
 

@@ -14,9 +14,31 @@ class RegisteredTokenResolver implements TokenResolverInterface
     /** @var string[] */
     protected $registeredTokenValues = array();
 
-    function __construct(array $registeredTokenValues)
+    function __construct(array $registeredTokenValues = null)
     {
-        $this->setRegisteredTokenValues($registeredTokenValues);
+        if (isset($registeredTokenValues)) {
+            $this->setRegisteredTokenValues($registeredTokenValues);
+        }
+    }
+
+    /**
+     * Get the token resolver type identifier.
+     *
+     * @return string
+     */
+    public static function getType()
+    {
+        return self::getBaseType();
+    }
+
+    /**
+     * Get the token resolver base type identifier.
+     *
+     * @return string
+     */
+    public static function getBaseType()
+    {
+        return 'registered';
     }
 
     /**
