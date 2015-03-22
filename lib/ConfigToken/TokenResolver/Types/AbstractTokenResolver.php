@@ -7,7 +7,7 @@ use ConfigToken\TokenResolver\TokenResolverInterface;
 
 abstract class AbstractTokenResolver implements TokenResolverInterface
 {
-    protected $ignoreUnknownTokens = False;
+    protected $ignoreUnknownTokens = True;
 
     /**
      * Get the state of the ignore unknown tokens flag.
