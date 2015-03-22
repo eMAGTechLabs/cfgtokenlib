@@ -46,7 +46,7 @@ class XrefTokenResolverCollection
             }
         }
         $tokenParser = new TokenParser();
-        
+
     }
 
     public function applyToArray(&$array)

@@ -319,7 +319,12 @@ class TreeCompiler
     protected function parseXrefInfo($xrefKey, $xrefInfo)
     {
         if (gettype($xrefInfo) == 'string') {
-            $xref = Xref::makeFromTypeAndLocationString($xrefInfo, $this->xrefTypeAndLocationDelimiter);
+            list($xrefType, $xrefLocation) = Xref::parseDefinitionString($xrefInfo, $this->xrefTypeAndLocationDelimiter);
+            $xrefId = Xref::computeId($xrefType, $xrefLocation);
+            if ($this->xrefs->hasById($xrefId)) {
+                return $this->xrefs[$xrefId];
+            }
+            $xref = new Xref($xrefType, $xrefLocation);
             return $xref;
         }
 

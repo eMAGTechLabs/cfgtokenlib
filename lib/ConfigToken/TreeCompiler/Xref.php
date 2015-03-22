@@ -30,15 +30,51 @@ class Xref
         $this->location = $location;
     }
 
-    public static function makeFromTypeAndLocationString($typeAndLocation, $delimiter)
+    /**
+     * Get the type and location from the definition string.
+     *
+     * @param string $typeAndLocation
+     * @param string $delimiter
+     * @return array Type and Location.
+     * @throws \Exception
+     */
+    public static function parseDefinitionString($typeAndLocation, $delimiter)
     {
         $k = strpos($typeAndLocation, $delimiter);
         if ($k === false) {
             throw new \Exception(sprintf('Missing Xref type in "%s".', $typeAndLocation));
         }
-        $xref = new static(substr($typeAndLocation, 0, $k), substr($typeAndLocation, $k + 1));
+        return array(substr($typeAndLocation, 0, $k), substr($typeAndLocation, $k + 1));
+    }
+
+    /**
+     * Get the id from the definition string.
+     *
+     * @param string $typeAndLocation
+     * @param string $delimiter
+     * @return string
+     * @throws \Exception
+    public static function getIdFromDefinitionString($typeAndLocation, $delimiter)
+    {
+        list($type, $location) = static::parseDefinitionString($typeAndLocation, $delimiter);
+        return static::computeId($type, $location);
+    }
+     */
+
+    /**
+     * Create Xref instance based on the given definition string.
+     *
+     * @param string $typeAndLocation
+     * @param string $delimiter
+     * @return static
+     * @throws \Exception
+    public static function makeFromDefinitionString($typeAndLocation, $delimiter)
+    {
+        list($type, $location) = static::parseDefinitionString($typeAndLocation, $delimiter);
+        $xref = new static($type, $location);
         return $xref;
     }
+     */
 
     public function isResolved()
     {
