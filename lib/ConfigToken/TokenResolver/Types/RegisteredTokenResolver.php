@@ -145,7 +145,7 @@ class RegisteredTokenResolver extends AbstractTokenResolver
      */
     public function getTokenValue($tokenName, $ignoreUnknownTokens = null, $defaultValue = Null)
     {
-        if (!isset($ignoreUnknownTokens)) {
+        if (is_null($ignoreUnknownTokens)) {
             $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
         }
         if (isset($this->registeredTokenValues[$tokenName])) {

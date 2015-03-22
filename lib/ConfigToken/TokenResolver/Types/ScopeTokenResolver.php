@@ -345,7 +345,7 @@ class ScopeTokenResolver extends AbstractTokenResolver
      */
     public function getTokenValue($tokenName, $ignoreUnknownTokens = null, $defaultValue = null)
     {
-        if (!isset($ignoreUnknownTokens)) {
+        if (is_null($ignoreUnknownTokens)) {
             $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
         }
         $t = explode($this->scopeTokenNameDelimiter, $tokenName);
