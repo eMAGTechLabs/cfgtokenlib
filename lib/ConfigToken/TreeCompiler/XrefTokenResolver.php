@@ -2,6 +2,8 @@
 
 namespace ConfigToken\TreeCompiler;
 
+use ConfigToken\Token;
+use ConfigToken\TokenCollection;
 use ConfigToken\TokenResolver\TokenResolverInterface;
 
 
@@ -306,6 +308,12 @@ class XrefTokenResolver
     public function setTokenFilterDelimiter($tokenFilterDelimiter = null)
     {
         $this->tokenFilterDelimiter = $tokenFilterDelimiter;
+        return $this;
+    }
+
+    public function resolve(TokenCollection $tokens)
+    {
+        $tokens->resolve($this->tokenResolver, null, $this->ignoreUnknownFilters);
         return $this;
     }
 }

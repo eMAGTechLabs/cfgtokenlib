@@ -21,6 +21,9 @@ class TokenCollection implements \IteratorAggregate
     /** @var string */
     protected $sourceHash;
 
+    /** @var boolean */
+    protected $ignoreUnknownFilters = True;
+
     /**
      * @param Token[] $tokens Array of Token with tokenString as keys.
      */
@@ -29,6 +32,28 @@ class TokenCollection implements \IteratorAggregate
         if (isset($tokens)) {
             $this->tokens = $tokens;
         }
+    }
+
+    /**
+     * Get the ignore unknown filters flag.
+     *
+     * @return boolean
+     */
+    public function getIgnoreUnknownFilters()
+    {
+        return $this->ignoreUnknownFilters;
+    }
+
+    /**
+     * Set the ignore unknown filters flag.
+     *
+     * @param boolean $ignoreUnknownFilters The new value for the ignore unknown filters flag.
+     * @return $this
+     */
+    public function setIgnoreUnknownFilters($ignoreUnknownFilters)
+    {
+        $this->ignoreUnknownFilters = $ignoreUnknownFilters;
+        return $this;
     }
 
     /**
@@ -300,8 +325,8 @@ class TokenCollection implements \IteratorAggregate
      * Attempt to resolve the values for all tokens in the list.
      *
      * @param TokenResolverInterface $tokenResolver
-     * @param boolean $ignoreUnknownTokens
-     * @param boolean $ignoreUnknownFilters
+     * @param boolean|null $ignoreUnknownTokens Null to use token resolver option.
+     * @param boolean|null $ignoreUnknownFilters Null to use collection option.
      * @throws UnknownFilterException
      *
      * If using RegisteredTokenResolver:
@@ -315,8 +340,14 @@ class TokenCollection implements \IteratorAggregate
      * @return $this
      */
     public function resolve(TokenResolverInterface $tokenResolver,
-                            $ignoreUnknownTokens = True, $ignoreUnknownFilters = True)
+                            $ignoreUnknownTokens = null, $ignoreUnknownFilters = null)
     {
+        if (is_null($ignoreUnknownTokens)) {
+            $ignoreUnknownTokens = $tokenResolver->getIgnoreUnknownTokens();
+        }
+        if (is_null($ignoreUnknownFilters)) {
+            $ignoreUnknownFilters = $this->ignoreUnknownFilters;
+        }
         $unfilteredValues = array();
         foreach ($this->tokens as $tokenString => $token) {
             if ($token->getIsResolved() && (!$token->hasUnresolvedFilters())) {
