@@ -133,7 +133,7 @@ class TokenParserTest extends \PHPUnit_Framework_TestCase
         }
 
         try {
-            $tokenResolver->getTokenValue($token6->getTokenName());
+            $tokenResolver->getTokenValue($token6->getTokenName(), false);
             $this->assertTrue(false);
         } catch (UnknownTokenException $e) {
             $this->assertTrue(true);

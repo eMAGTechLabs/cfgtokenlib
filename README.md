@@ -109,9 +109,11 @@ or by using a predefined or a custom TokenResolver.
 
 ```php
 $resolver = new RegisteredTokenResolver(
-  'attribute' => 'QUICK',
-  'color' => 'brown',
-  'target' => 'lazy dog',
+  array(
+    'attribute' => 'QUICK',
+    'color' => 'brown',
+    'target' => 'lazy dog',
+  )
 );
 $tokens->resolve($resolver);
 $output = TokenInjector::injectString($output, $tokens);

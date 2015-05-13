@@ -9,14 +9,36 @@ use ConfigToken\TokenResolver\TokenResolverInterface;
 /**
  * Resolves token values based on a given uni-dimensional associative array (token name => value).
  */
-class RegisteredTokenResolver implements TokenResolverInterface
+class RegisteredTokenResolver extends AbstractTokenResolver
 {
     /** @var string[] */
     protected $registeredTokenValues = array();
 
-    function __construct(array $registeredTokenValues)
+    function __construct(array $registeredTokenValues = null)
     {
-        $this->setRegisteredTokenValues($registeredTokenValues);
+        if (isset($registeredTokenValues)) {
+            $this->setRegisteredTokenValues($registeredTokenValues);
+        }
+    }
+
+    /**
+     * Get the token resolver type identifier.
+     *
+     * @return string
+     */
+    public static function getType()
+    {
+        return self::getBaseType();
+    }
+
+    /**
+     * Get the token resolver base type identifier.
+     *
+     * @return string
+     */
+    public static function getBaseType()
+    {
+        return 'registered';
     }
 
     /**
@@ -43,7 +65,17 @@ class RegisteredTokenResolver implements TokenResolverInterface
         }
         return $this->registeredTokenValues[$tokenName];
     }
-    
+
+    /**
+     * Check if any token values are registered.
+     *
+     * @return boolean
+     */
+    public function hasRegisteredTokenValues()
+    {
+        return count($this->registeredTokenValues) > 0;
+    }
+
     /**
      * Get all registered token values.
      *
@@ -106,13 +138,16 @@ class RegisteredTokenResolver implements TokenResolverInterface
      * Get the value for the given token.
      *
      * @param string $tokenName The name of the token to be resolved to a value.
-     * @param boolean $ignoreUnknownTokens If True, passing an unresolvable token will not cause an exception.
+     * @param boolean|null $ignoreUnknownTokens If True, passing an unresolvable token will not cause an exception.
      * @param string|null $defaultValue The value returned if the token is not found and set to ignore unknown tokens.
      * @throws UnknownTokenException If the token name was not registered and set not to ignore unknown tokens.
      * @return string|null
      */
-    public function getTokenValue($tokenName, $ignoreUnknownTokens = False, $defaultValue = Null)
+    public function getTokenValue($tokenName, $ignoreUnknownTokens = null, $defaultValue = Null)
     {
+        if (is_null($ignoreUnknownTokens)) {
+            $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
+        }
         if (isset($this->registeredTokenValues[$tokenName])) {
             return $this->registeredTokenValues[$tokenName];
         }

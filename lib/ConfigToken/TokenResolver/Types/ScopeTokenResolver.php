@@ -44,7 +44,7 @@ use ConfigToken\TokenResolver\TokenResolverInterface;
  *
  * @package ConfigToken\Library\TokenResolver
  */
-class ScopeTokenResolver implements TokenResolverInterface
+class ScopeTokenResolver extends AbstractTokenResolver
 {
     /** @var string */
     protected $scopeTokenName;
@@ -65,14 +65,56 @@ class ScopeTokenResolver implements TokenResolverInterface
     protected $serializer;
 
 
-    function __construct($scopeTokenName, $scope = null, $ignoreOutOfScope = False)
+    function __construct($scopeTokenName = null, $scope = null, $ignoreOutOfScope = False)
     {
-        $this->scopeTokenName = $scopeTokenName;
+        $this->setScopeTokenName($scopeTokenName);
         $this->setIgnoreOutOfScope($ignoreOutOfScope);
 
         if (isset($scope)) {
             $this->setScope($scope);
         }
+    }
+
+    /**
+     * Get the token resolver type identifier.
+     *
+     * @return string
+     */
+    public static function getType()
+    {
+        return self::getBaseType();
+    }
+
+    /**
+     * Get the token resolver base type identifier.
+     *
+     * @return string
+     */
+    public static function getBaseType()
+    {
+        return 'scope';
+    }
+
+    /**
+     * Check if the scope token name is set.
+     *
+     * @return boolean
+     */
+    public function hasScopeTokenName()
+    {
+        return isset($this->scopeTokenName);
+    }
+
+    /**
+     * Set the scope token name.
+     *
+     * @param string $value
+     * @return $this
+     */
+    public function setScopeTokenName($value)
+    {
+        $this->scopeTokenName = $value;
+        return $this;
     }
 
     /**
@@ -286,7 +328,7 @@ class ScopeTokenResolver implements TokenResolverInterface
      * Get the value for the given token.
      *
      * @param string $tokenName The name of the token to be resolved to a value.
-     * @param boolean $ignoreUnknownTokens If True, passing an unresolvable token will not cause an exception.
+     * @param boolean|null $ignoreUnknownTokens If True, passing an unresolvable token will not cause an exception.
      * @param string|null $defaultValue The value returned if the token is not found and set to ignore unknown tokens.
      * @throws OutOfScopeException
      *   If the path portion of the token name does not exist in the given scope and
@@ -301,8 +343,11 @@ class ScopeTokenResolver implements TokenResolverInterface
      * @throws \Exception
      * @return null|string
      */
-    public function getTokenValue($tokenName, $ignoreUnknownTokens = false, $defaultValue = null)
+    public function getTokenValue($tokenName, $ignoreUnknownTokens = null, $defaultValue = null)
     {
+        if (is_null($ignoreUnknownTokens)) {
+            $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
+        }
         $t = explode($this->scopeTokenNameDelimiter, $tokenName);
         $token = $t[0];
         if ($token !== $this->scopeTokenName) {
