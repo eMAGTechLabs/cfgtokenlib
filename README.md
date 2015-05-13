@@ -138,7 +138,7 @@ In order for that to be possible, all structures must comply with a pre-determin
 
 ```php
 $treeCompiler = new TreeCompiler();
-$result = $treeCompiler->compile('example.json');
+$result = $treeCompiler->compileLocalFile('example.json');
 $treeCompiler->save($result, 'result.json');
 ```
 
