@@ -590,13 +590,17 @@ class TreeCompiler
                 case static::INCLUDE_TYPE_GROUP:
                     if (!$mustIncludeSpecificGroup) {
                         if (isset($xrefData[$this->addKey])) {
-                            return $xrefData[$this->addKey];
+                            $result = $xrefData[$this->addKey];
                         } else {
                             if (isset($xrefData[$this->removeKey])) {
                                 unset($xrefData[$this->removeKey]);
                             }
-                            return $xrefData;
+                            $result = $xrefData;
                         }
+                        if (isset($tokenResolvers)) {
+                            $tokenResolvers->applyToArray($result);
+                        }
+                        return $result;
                     }
                     throw new XrefResolverFormatException(
                         $xref,
@@ -627,13 +631,17 @@ class TreeCompiler
                 case static::INCLUDE_TYPE_GROUP:
                     if (!$mustIncludeSpecificGroup) {
                         if (isset($xrefData[$this->addKey])) {
-                            return $xrefData[$this->addKey];
+                            $result = $xrefData[$this->addKey];
                         } else {
                             if (isset($xrefData[$this->removeKey])) {
                                 unset($xrefData[$this->removeKey]);
                             }
-                            return $xrefData;
+                            $result = $xrefData;
                         }
+                        if (isset($tokenResolvers)) {
+                            $tokenResolvers->applyToArray($result);
+                        }
+                        return $result;
                     }
                     throw new XrefResolverFormatException(
                         $xref,
