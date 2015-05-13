@@ -348,23 +348,14 @@ class TokenCollection implements \IteratorAggregate
         if (is_null($ignoreUnknownFilters)) {
             $ignoreUnknownFilters = $this->ignoreUnknownFilters;
         }
-        $unfilteredValues = array();
         foreach ($this->tokens as $tokenString => $token) {
             if ($token->getIsResolved() && (!$token->hasUnresolvedFilters())) {
                 continue;
             }
-            $unfilteredValueChanged = False;
             if (!$token->getIsResolved()) {
-                $tokenName = $token->getTokenName();
-                if (array_key_exists($tokenName, $unfilteredValues)) {
-                    $token->setUnfilteredTokenValue($unfilteredValues[$tokenName]);
-                } else {
-                    $token->resolveUnfilteredValue($tokenResolver, $ignoreUnknownTokens);
-                    $unfilteredValues[$tokenName] = $token->getUnfilteredTokenValue();
-                }
-                $unfilteredValueChanged = True;
+                $token->resolveUnfilteredValue($tokenResolver, $ignoreUnknownTokens);
             }
-            if ($token->hasFilters() && $token->hasUnfilteredTokenValue() && $unfilteredValueChanged) {
+            if ($token->hasFilters() && $token->hasUnfilteredTokenValue()) {
                 $token->applyFilters($ignoreUnknownFilters);
             }
         }
