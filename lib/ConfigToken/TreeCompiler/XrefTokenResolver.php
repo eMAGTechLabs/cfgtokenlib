@@ -4,7 +4,10 @@ namespace ConfigToken\TreeCompiler;
 
 use ConfigToken\Token;
 use ConfigToken\TokenCollection;
+use ConfigToken\TokenParser;
 use ConfigToken\TokenResolver\TokenResolverInterface;
+use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
+use ConfigToken\TokenResolver\Types\ScopeTokenResolver;
 
 
 class XrefTokenResolver
@@ -25,6 +28,8 @@ class XrefTokenResolver
     protected $tokenSuffix;
     /** @var string */
     protected $tokenFilterDelimiter;
+    /** @var TokenParser */
+    protected $tokenParser;
 
     public function __construct(TokenResolverInterface $tokenResolver = null)
     {
@@ -203,6 +208,9 @@ class XrefTokenResolver
     public function setTokenRegex($tokenRegex = null)
     {
         $this->tokenRegex = $tokenRegex;
+        if ($this->tokenRegex !== $tokenRegex) {
+            $this->tokenParser = null;
+        }
         return $this;
     }
 
@@ -238,6 +246,9 @@ class XrefTokenResolver
     public function setTokenPrefix($tokenPrefix = null)
     {
         $this->tokenPrefix = $tokenPrefix;
+        if ($this->tokenPrefix !== $tokenPrefix) {
+            $this->tokenParser = null;
+        }
         return $this;
     }
 
@@ -273,6 +284,9 @@ class XrefTokenResolver
     public function setTokenSuffix($tokenSuffix = null)
     {
         $this->tokenSuffix = $tokenSuffix;
+        if ($this->tokenSuffix !== $tokenSuffix) {
+            $this->tokenParser = null;
+        }
         return $this;
     }
 
@@ -308,7 +322,28 @@ class XrefTokenResolver
     public function setTokenFilterDelimiter($tokenFilterDelimiter = null)
     {
         $this->tokenFilterDelimiter = $tokenFilterDelimiter;
+        if ($this->tokenFilterDelimiter !== $tokenFilterDelimiter) {
+            $this->tokenParser = null;
+        }
         return $this;
+    }
+
+    public function getTokenParser()
+    {
+        if (!isset($this->tokenParser)) {
+            $this->tokenParser = new TokenParser();
+            if ($this->hasTokenFilterDelimiter()) {
+                $this->tokenParser->setFilterDelimiter($this->getTokenFilterDelimiter());
+            }
+            if ($this->hasTokenRegex()) {
+                $this->tokenParser->setTokenRegex($this->getTokenRegex());
+            } else {
+                if ($this->hasTokenPrefix() && $this->hasTokenSuffix()) {
+                    $this->tokenParser->setTokenRegexByDelimiters($this->getTokenPrefix(), $this->getTokenSuffix());
+                }
+            }
+        }
+        return $this->tokenParser;
     }
 
     public function resolve(TokenCollection $tokens)
