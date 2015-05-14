@@ -112,7 +112,6 @@ class XrefTokenResolverCollection
                     $record[self::$_VALUE_REF] = $newValue;
                     unset($record[self::$_VALUE_TOKENS]);
                     unset($record[self::$_VALUE_REF]);
-                    unset($record[self::$_VALUE_REF_KEY]);
                 }
                 if (isset($record[self::$_KEY])) {
                     $oldKey = $record[self::$_KEY];
