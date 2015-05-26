@@ -2,9 +2,7 @@
 
 namespace ConfigToken\TokenResolver\Exception;
 
-/**
- * @codeCoverageIgnore
- */
+
 class UnknownTokenException extends \Exception
 {
     public function __construct($tokenName = "", $scope = "", $code = 0, \Exception $previous = null)
