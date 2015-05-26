@@ -13,7 +13,7 @@ class JsonTreeSerializerTest extends \PHPUnit_Framework_TestCase
     public function testSerialize($data)
     {
         $serialized = JsonTreeSerializer::serialize($data);
-        $this->assertEquals(json_encode($data, JSON_PRETTY_PRINT), $serialized);
+        $this->assertEquals(json_encode($data, JSON_PRETTY_PRINT || JSON_UNESCAPED_SLASHES), $serialized);
     }
 
     /**
