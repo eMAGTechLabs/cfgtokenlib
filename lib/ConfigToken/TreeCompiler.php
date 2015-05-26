@@ -6,6 +6,7 @@ use ConfigToken\Exception\NotRegisteredException;
 use ConfigToken\TokenResolver\TokenResolverFactory;
 use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
 use ConfigToken\TokenResolver\Types\ScopeTokenResolver;
+use ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException;
 use ConfigToken\TreeCompiler\Exception\TreeCompilerFormatException;
 use ConfigToken\TreeCompiler\Exceptions\CircularReferenceException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefException;
@@ -244,11 +245,18 @@ class TreeCompiler
         return $result;
     }
 
+    /**
+     * @param $xrefKey
+     * @param $tokenResolverDefinitionIndex
+     * @param $tokenResolverBaseType
+     * @param $options
+     * @throws TokenResolverDefinitionException
+     */
     protected function validateXrefTokenResolverOptions($xrefKey, $tokenResolverDefinitionIndex, $tokenResolverBaseType,
                                                         $options)
     {
         if (!is_array($options)) {
-            throw new \Exception(
+            throw new TokenResolverDefinitionException(
                 sprintf(
                     'The "%s" key for token resolver definition at index %d for Xref key "%s" must be an associative array.',
                     $this->xrefTokenResolverOptionsKey,
@@ -271,7 +279,7 @@ class TreeCompiler
             }
         }
         if (count($required) > 0) {
-            throw new \Exception(
+            throw new TokenResolverDefinitionException(
                 sprintf(
                     'Missing required option(s) "%s" for token resolver definition based on the "%s" type identifier at ' .
                     'index %d for Xref key "%s".',
@@ -284,7 +292,7 @@ class TreeCompiler
             );
         }
         if (count($unknown) > 0) {
-            throw new \Exception(
+            throw new TokenResolverDefinitionException(
                 sprintf(
                     'Unknown option(s) "%s" for token resolver definition based on the "%s" type identifier at ' .
                     'index %d for Xref key "%s".',
@@ -300,7 +308,7 @@ class TreeCompiler
             $valueType = gettype($optionValue);
             $expectedValueType = $this->xrefTokenResolverOptionKeys[$tokenResolverBaseType][$optionKey];
             if ($valueType != $expectedValueType) {
-                throw new \Exception(
+                throw new TokenResolverDefinitionException(
                     sprintf(
                         'Wrong type "%s" instead of "%s" for option "%s" for token resolver definition based on the ' .
                         '"%s" type identifier at index %d for Xref key "%s".',
@@ -316,6 +324,13 @@ class TreeCompiler
         }
     }
 
+    /**
+     * @param $xrefKey
+     * @param $xrefInfo
+     * @return Xref|mixed
+     * @throws TreeCompilerFormatException
+     * @throws \Exception
+     */
     protected function parseXrefInfo($xrefKey, $xrefInfo)
     {
         if (gettype($xrefInfo) == 'string') {
@@ -331,7 +346,7 @@ class TreeCompiler
         if (!is_array($xrefInfo)) {
             throw new TreeCompilerFormatException(
                 sprintf(
-                    'The Xref definition key "%s" must be a string with the format xref_type%sxref_location ' .
+                    'The Xref definition key "%s" must be a string with the format xref_type %s xref_location ' .
                     'or an associative array with the keys "%s" for type and "%s" for location.',
                     $this->xrefTypeAndLocationDelimiter,
                     $this->includeXrefTypeKey,
@@ -379,7 +394,7 @@ class TreeCompiler
         // validate
         foreach ($tokenResolversInfo as $tokenResolverKey => $tokenResolverInfo) {
             if (!is_array($tokenResolversInfo)) {
-                throw new \Exception(
+                throw new TokenResolverDefinitionException(
                     sprintf(
                         'Token resolver definition at index %d for Xref key "%s" must be associative arrays.',
                         $tokenResolverDefinitionIndex,
@@ -388,18 +403,19 @@ class TreeCompiler
                 );
             }
             if (!isset($tokenResolverInfo[$this->xrefTokenResolverTypeKey])) {
-                throw new \Exception(
+                throw new TokenResolverDefinitionException(
                     sprintf(
-                        'Token resolver definition at index %d for Xref key "%s" is missing the "%s" type identifier key.',
+                        "Token resolver definition at index %d for Xref key \"%s\" is missing the \"%s\" type identifier key.\n%s",
                         $tokenResolverDefinitionIndex,
                         $xrefKey,
-                        $this->xrefTokenResolverTypeKey
+                        $this->xrefTokenResolverTypeKey,
+                        json_encode($tokenResolverInfo)
                     )
                 );
             }
             $tokenResolverType = $tokenResolverInfo[$this->xrefTokenResolverTypeKey];
             if (!TokenResolverFactory::isRegisteredByType($tokenResolverType)) {
-                throw new \Exception(
+                throw new TokenResolverDefinitionException(
                     sprintf(
                         'Unknown token resolver type identifier "%s" at index %d for Xref key "%s".',
                         $tokenResolverType,
@@ -411,7 +427,7 @@ class TreeCompiler
             $hasValues = isset($tokenResolverInfo[$this->xrefTokenResolverValuesKey]);
             $hasValuesXref = isset($tokenResolverInfo[$this->xrefTokenResolverValuesXrefKey]);
             if ((!$hasValues) && (!$hasValuesXref)) {
-                throw new \Exception(
+                throw new TokenResolverDefinitionException(
                     sprintf(
                         'Token resolver definition at index %d for Xref key "%s" does not have a "%s" key or a "%s" key.',
                         $tokenResolverDefinitionIndex,
@@ -434,7 +450,7 @@ class TreeCompiler
             if ($hasValues) {
                 $values = $tokenResolverInfo[$this->xrefTokenResolverValuesKey];
                 if (!is_array($values)) {
-                    throw new \Exception(
+                    throw new TokenResolverDefinitionException(
                         sprintf(
                             'The "%s" key must be an associative array for token resolver definition at ' .
                             'index %d for Xref key "%s".',

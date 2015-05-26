@@ -8,12 +8,16 @@ use ConfigToken\TreeCompiler\Xref;
 
 class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testTreeCompiler()
+    /**
+     * @expectedException \ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException
+     */
+    public function testValidator()
     {
         $xrefDep5 = new Xref('file', 'dep5.json');
         $xrefDep5->setData(
             array(
                 'key_from_dep5' => 'value from dep5',
+                'key_with_registered_token' => 'token {{here}}',
                 'key_to_remove' => 'value from dep5',
             )
         )->setResolved(true);
@@ -23,7 +27,74 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             array(
                 'include' => array(
                     'xref' => array(
-                        'dep5' => 'file:dep5.json',
+                        'dep5' => array(
+                            'type' => 'file',
+                            'src' => 'dep5.json',
+                            'resolve' => array(
+                                array(
+                                    'options' => array(
+                                        'token-prefix' => '{{',
+                                        'token-suffix' => '}}',
+                                    ),
+                                    'values' => array(
+                                        'here' => 'resolved',
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                    'main' => array(
+                        'dep5',
+                    ),
+                ),
+                'add' => array(
+                    'key_from_dep4' => 'value from dep4'
+                ),
+                'remove' => array(
+                    'key_to_remove' => '',
+                ),
+            )
+        )->setResolved(true);
+
+        $treeCompiler = new TreeCompiler();
+        $treeCompiler->getXrefs()->add($xrefDep4);
+        $treeCompiler->getXrefs()->add($xrefDep5);
+
+        $treeCompiler->compileXref($xrefDep4);
+    }
+
+    public function testTreeCompiler()
+    {
+        $xrefDep5 = new Xref('file', 'dep5.json');
+        $xrefDep5->setData(
+            array(
+                'key_from_dep5' => 'value from dep5',
+                'key_with_registered_token' => 'token {{here}}',
+                'key_to_remove' => 'value from dep5',
+            )
+        )->setResolved(true);
+
+        $xrefDep4 = new Xref('file', 'dep4.json');
+        $xrefDep4->setData(
+            array(
+                'include' => array(
+                    'xref' => array(
+                        'dep5' => array(
+                            'type' => 'file',
+                            'src' => 'dep5.json',
+                            'resolve' => array(
+                                array(
+                                    'type' => 'registered',
+                                    'options' => array(
+                                        'token-prefix' => '{{',
+                                        'token-suffix' => '}}',
+                                    ),
+                                    'values' => array(
+                                        'here' => 'resolved',
+                                    ),
+                                ),
+                            ),
+                        ),
                     ),
                     'main' => array(
                         'dep5',
@@ -105,6 +176,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             'key_from_dep2' => 'value from dep2',
             'key_from_dep5' => 'value from dep5',
+            'key_with_registered_token' => 'token resolved',
             'key_to_remove' => 'value from dep5',
             'key_from_dep4' => 'value from main',
             'key_from_dep3' => 'value from dep3',
