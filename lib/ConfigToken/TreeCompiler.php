@@ -392,12 +392,21 @@ class TreeCompiler
         $resolverValues = array();
         $tokenResolverDefinitionIndex = 0;
         // validate
+        if (!is_array($tokenResolversInfo)) {
+            throw new TokenResolverDefinitionException(
+                sprintf(
+                    'Token resolver definitions at index %d for Xref key "%s" must be an array.',
+                    $tokenResolverDefinitionIndex,
+                    $xrefKey
+                )
+            );
+        }
         foreach ($tokenResolversInfo as $tokenResolverKey => $tokenResolverInfo) {
-            if (!is_array($tokenResolversInfo)) {
+            if (!is_array($tokenResolverInfo)) {
                 throw new TokenResolverDefinitionException(
                     sprintf(
-                        'Token resolver definition at index %d for Xref key "%s" must be associative arrays.',
-                        $tokenResolverDefinitionIndex,
+                        'Token resolver definition at index %d for Xref key "%s" must be an associative array.',
+                        $tokenResolverKey,
                         $xrefKey
                     )
                 );
@@ -691,7 +700,7 @@ class TreeCompiler
                     )
                 );
             }
-            $xrefsToBeParsed[] = $xrefDataIncludeXrefs[$xrefKeyToBeResolved];
+            $xrefsToBeParsed[$xrefKeyToBeResolved] = $xrefDataIncludeXrefs[$xrefKeyToBeResolved];
         }
         unset($xrefDataIncludeXrefs);
 

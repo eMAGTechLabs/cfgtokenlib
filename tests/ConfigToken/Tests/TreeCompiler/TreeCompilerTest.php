@@ -10,15 +10,15 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException \ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException
+     * @expectedExceptionMessage Token resolver definition at index 0 for Xref key "dep5" is missing the "type" type identifier key.
+     * {"options":{"token-prefix":"{{","token-suffix":"}}"},"values":{"here":"resolved"}}
      */
-    public function testValidator()
+    public function testTokenResolverDefinitionValidator1()
     {
         $xrefDep5 = new Xref('file', 'dep5.json');
         $xrefDep5->setData(
             array(
-                'key_from_dep5' => 'value from dep5',
                 'key_with_registered_token' => 'token {{here}}',
-                'key_to_remove' => 'value from dep5',
             )
         )->setResolved(true);
 
@@ -40,6 +40,52 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
                                         'here' => 'resolved',
                                     ),
                                 ),
+                            ),
+                        ),
+                    ),
+                    'main' => array(
+                        'dep5',
+                    ),
+                ),
+                'add' => array(
+                    'key_from_dep4' => 'value from dep4'
+                ),
+                'remove' => array(
+                    'key_to_remove' => '',
+                ),
+            )
+        )->setResolved(true);
+
+        $treeCompiler = new TreeCompiler();
+        $treeCompiler->getXrefs()->add($xrefDep4);
+        $treeCompiler->getXrefs()->add($xrefDep5);
+
+        $treeCompiler->compileXref($xrefDep4);
+    }
+
+    /**
+     * @expectedException \ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException
+     * @expectedExceptionMessage Token resolver definition at index 0 for Xref key "dep5" must be an associative array.
+     */
+    public function testTokenResolverDefinitionValidator2()
+    {
+        $xrefDep5 = new Xref('file', 'dep5.json');
+        $xrefDep5->setData(
+            array(
+                'key_with_registered_token' => 'token {{here}}',
+            )
+        )->setResolved(true);
+
+        $xrefDep4 = new Xref('file', 'dep4.json');
+        $xrefDep4->setData(
+            array(
+                'include' => array(
+                    'xref' => array(
+                        'dep5' => array(
+                            'type' => 'file',
+                            'src' => 'dep5.json',
+                            'resolve' => array(
+                                1
                             ),
                         ),
                     ),
