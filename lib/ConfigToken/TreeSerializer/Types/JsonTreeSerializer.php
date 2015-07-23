@@ -5,6 +5,10 @@ namespace ConfigToken\TreeSerializer\Types;
 use ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException;
 
 
+defined('JSON_UNESCAPED_SLASHES') or define('JSON_UNESCAPED_SLASHES', 64);
+defined('JSON_PRETTY_PRINT') or define('JSON_PRETTY_PRINT', 128);
+
+
 class JsonTreeSerializer extends AbstractTreeSerializer
 {
     /**
