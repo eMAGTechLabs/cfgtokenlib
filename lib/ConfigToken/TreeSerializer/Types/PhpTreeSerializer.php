@@ -73,10 +73,14 @@ class PhpTreeSerializer extends AbstractTreeSerializer
         $token = @ini_set('display_errors', true);
         ob_start();
         $braces || $code = "if(0){" . $code . "\n}";
-        try {
+        if (class_exists('ParseError')) { // PHP 7
+            try {
+                $evalResult = eval($code);
+            } /** @noinspection PhpUndefinedClassInspection */ catch(\ParseError $e) {
+                return array($e->getMessage(), $e->getCode());
+            }
+        } else {
             $evalResult = eval($code);
-        } catch (\Exception $e) { // PHP 7 throws \ParseError
-            return array($e->getMessage(), $e->getCode());
         }
 		if ($evalResult === false) {
             if ($braces) {
@@ -110,10 +114,14 @@ class PhpTreeSerializer extends AbstractTreeSerializer
         if ($code !== false) {
             throw new TreeSerializerSyntaxException(sprintf('Unable to deserialize PHP tree: %s', implode(', ', $code)));
         }
-        try {
+        if (class_exists('ParseError')) { // PHP 7
+            try {
+                eval(str_replace('<?php', '', $string));
+            } /** @noinspection PhpUndefinedClassInspection */ catch(\ParseError $e) {
+                throw new TreeSerializerSyntaxException($e->getMessage());
+            }
+        } else {
             eval(str_replace('<?php', '', $string));
-        } catch (\Exception $e) { // PHP 7 throws \ParseError
-            throw new TreeSerializerSyntaxException($e->getMessage());
         }
         return $data;
     }
