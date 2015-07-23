@@ -384,6 +384,7 @@ class TreeCompiler
      * Parse the array corresponding to the $includeKey:$includeXrefKey:<xref name>:$includeXrefResolveKey.
      *
      * @param array $tokenResolversInfo
+     * @param string $xrefKey
      * @return XrefTokenResolverCollection
      * @throws \Exception
      */
@@ -395,9 +396,10 @@ class TreeCompiler
         if (!is_array($tokenResolversInfo)) {
             throw new TokenResolverDefinitionException(
                 sprintf(
-                    'Token resolver definitions at index %d for Xref key "%s" must be an array.',
+                    'Token resolver definitions at index %d for Xref key "%s" must be an array. (%s)',
                     $tokenResolverDefinitionIndex,
-                    $xrefKey
+                    $xrefKey,
+                    json_encode($tokenResolversInfo)
                 )
             );
         }
@@ -405,9 +407,10 @@ class TreeCompiler
             if (!is_array($tokenResolverInfo)) {
                 throw new TokenResolverDefinitionException(
                     sprintf(
-                        'Token resolver definition at index %d for Xref key "%s" must be an associative array.',
+                        'Token resolver definition at index %d for Xref key "%s" must be an associative array. (%s)',
                         $tokenResolverKey,
-                        $xrefKey
+                        $xrefKey,
+                        json_encode($tokenResolversInfo)
                     )
                 );
             }
