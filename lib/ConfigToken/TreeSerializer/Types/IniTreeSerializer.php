@@ -74,12 +74,12 @@ class IniTreeSerializer extends AbstractTreeSerializer
     {
         $result = array();
         try {
-            $ini = parse_ini_string($string, true, INI_SCANNER_RAW);
+            $ini = parse_ini_string($string . "\n", true, INI_SCANNER_RAW);
         } catch (\Exception $e) {
-            throw new TreeSerializerSyntaxException(sprintf('Unable to parse INI string: %s.', $e->getMessage()));
+            throw new TreeSerializerSyntaxException(sprintf('Unable to parse INI string (json: %s): %s.', json_encode($string), $e->getMessage()));
         }
         if (($ini === false) || (empty($ini) && (strlen(trim($string)) > 0))) {
-            throw new TreeSerializerSyntaxException('Unable to parse INI string.');
+            throw new TreeSerializerSyntaxException(sprintf('Unable to parse INI string (json: %s).', json_encode($string)));
         }
         foreach ($ini as $key => $value) {
             if (is_array($value)) {
