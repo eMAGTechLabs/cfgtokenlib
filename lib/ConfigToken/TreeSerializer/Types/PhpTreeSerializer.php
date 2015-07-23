@@ -76,7 +76,7 @@ class PhpTreeSerializer extends AbstractTreeSerializer
         try {
             $evalResult = eval($code);
         } catch (\Exception $e) { // PHP 7 throws \ParseError
-            $evalResult = false;
+            return array($e->getMessage(), $e->getCode());
         }
 		if ($evalResult === false) {
             if ($braces) {
