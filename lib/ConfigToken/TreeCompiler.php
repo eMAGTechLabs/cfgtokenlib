@@ -325,8 +325,8 @@ class TreeCompiler
     }
 
     /**
-     * @param $xrefKey
-     * @param $xrefInfo
+     * @param string $xrefKey
+     * @param string|array $xrefInfo
      * @return Xref|mixed
      * @throws TreeCompilerFormatException
      * @throws \Exception
@@ -717,7 +717,7 @@ class TreeCompiler
                 $xrefInfo
             );
 
-            if (isset($xrefInfo[$this->includeXrefResolversKey])) {
+            if (is_array($xrefInfo) && isset($xrefInfo[$this->includeXrefResolversKey])) {
                 $xrefTokenResolvers = $this->parseXrefTokenResolverDefinitions(
                     $xrefKey,
                     $xrefInfo[$this->includeXrefResolversKey]
