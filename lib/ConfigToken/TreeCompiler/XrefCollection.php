@@ -3,7 +3,6 @@
 namespace ConfigToken\TreeCompiler;
 
 use ConfigToken\Exception\AlreadyRegisteredException;
-use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefTypeException;
 
 
 class XrefCollection implements \IteratorAggregate, \ArrayAccess

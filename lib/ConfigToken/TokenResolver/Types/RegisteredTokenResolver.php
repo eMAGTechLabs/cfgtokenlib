@@ -3,7 +3,6 @@
 namespace ConfigToken\TokenResolver\Types;
 
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
-use ConfigToken\TokenResolver\TokenResolverInterface;
 
 
 /**

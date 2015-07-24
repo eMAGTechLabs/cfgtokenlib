@@ -1,5 +1,7 @@
 # ConfigToken Library
 
+[![Build Status](https://travis-ci.org/liutec/cfgtokenlib.png?branch=master)](https://travis-ci.org/liutec/cfgtokenlib)
+
 The ConfigToken library provides the following classes to aid in token parsing, value formatting and injection:
 - **TokenParser**: configurable string parser class used to extract a collection of tokens.
 - **TokenCollection**: generic token collection class used in conjunction with a given token resolver instance to resolve tokens to values and apply the given filters.

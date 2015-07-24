@@ -2,7 +2,6 @@
 
 namespace ConfigToken\TreeCompiler;
 
-use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefTypeException;
 use ConfigToken\TreeCompiler\XrefResolver\XrefResolverFactory;
 
 
@@ -54,27 +53,27 @@ class Xref
      * @param string $delimiter
      * @return string
      * @throws \Exception
+     */
     public static function getIdFromDefinitionString($typeAndLocation, $delimiter)
     {
         list($type, $location) = static::parseDefinitionString($typeAndLocation, $delimiter);
         return static::computeId($type, $location);
     }
-     */
 
     /**
      * Create Xref instance based on the given definition string.
      *
      * @param string $typeAndLocation
      * @param string $delimiter
-     * @return static
+     * @return Xref
      * @throws \Exception
+     */
     public static function makeFromDefinitionString($typeAndLocation, $delimiter)
     {
         list($type, $location) = static::parseDefinitionString($typeAndLocation, $delimiter);
         $xref = new static($type, $location);
         return $xref;
     }
-     */
 
     public function isResolved()
     {

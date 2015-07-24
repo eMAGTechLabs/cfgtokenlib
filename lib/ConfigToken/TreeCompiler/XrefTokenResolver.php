@@ -2,12 +2,9 @@
 
 namespace ConfigToken\TreeCompiler;
 
-use ConfigToken\Token;
 use ConfigToken\TokenCollection;
 use ConfigToken\TokenParser;
 use ConfigToken\TokenResolver\TokenResolverInterface;
-use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
-use ConfigToken\TokenResolver\Types\ScopeTokenResolver;
 
 
 class XrefTokenResolver

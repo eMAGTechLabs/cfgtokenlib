@@ -40,6 +40,7 @@ interface TokenResolverInterface
     /**
      * Set the state of the ignore unknown tokens flag.
      *
+     * @param boolean $value
      * @return boolean
      */
     public function setIgnoreUnknownTokens($value);
