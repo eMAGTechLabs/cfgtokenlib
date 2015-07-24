@@ -7,7 +7,6 @@ use ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException;
 use ConfigToken\TokenResolver\Exception\TokenFormatException;
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
 use ConfigToken\TokenResolver\ScopeTokenValueSerializerInterface;
-use ConfigToken\TokenResolver\TokenResolverInterface;
 
 
 /**
@@ -391,18 +390,23 @@ class ScopeTokenResolver extends AbstractTokenResolver
                 )
             );
         } else {
-            try {
-                $result = '' . $scopeValue;
-                return $result;
-            } catch (\Exception $e) {
-                throw new ScopeTokenValueSerializationException(
-                    sprintf(
-                        'Value for scope reference token "%s" of %s cannot be converted to string. (Serializer not set)',
-                        $tokenName,
-                        get_called_class()
-                    )
-                );
+            if (is_string($scopeValue)) {
+                return $scopeValue;
             }
+            if (is_int($scopeValue)) {
+                return sprintf('%d', $scopeValue);
+            }
+            if (is_float($scopeValue)) {
+                return sprintf('%.5f', $scopeValue);
+            }
+            throw new ScopeTokenValueSerializationException(
+                sprintf(
+                    'Value of type "%s" for scope reference token "%s" of %s cannot be converted to string. (Serializer not set)',
+                    gettype($scopeValue),
+                    $tokenName,
+                    get_called_class()
+                )
+            );
         }
     }
 }
