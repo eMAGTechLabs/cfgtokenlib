@@ -33,7 +33,7 @@ class TokenResolverFactory
     {
         static::registerKnownTypes();
         if (isset(static::$registeredByType[$resolverType])) {
-            return static::$registeredByType[$resolverType];
+            return new static::$registeredByType[$resolverType];
         }
         throw new UnknownTokenResolverTypeException($resolverType);
     }
@@ -65,7 +65,7 @@ class TokenResolverFactory
      */
     protected static function internalRegister(TokenResolverInterface $tokenResolver)
     {
-        static::$registeredByType[$tokenResolver::getType()] = $tokenResolver;
+        static::$registeredByType[$tokenResolver::getType()] = $tokenResolver::getClassName();
     }
 
     public static function register(TokenResolverInterface $tokenResolver)

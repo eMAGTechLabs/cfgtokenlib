@@ -16,6 +16,13 @@ interface TokenResolverInterface
     public static function getType();
 
     /**
+     * Get the name of the implementation class.
+     *
+     * @return string
+     */
+    public static function getClassName();
+
+    /**
      * Get the token resolver base type identifier.
      *
      * @return string

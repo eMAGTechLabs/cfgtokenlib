@@ -10,6 +10,16 @@ abstract class AbstractTokenResolver implements TokenResolverInterface
     protected $ignoreUnknownTokens = True;
 
     /**
+     * Get the name of the implementation class.
+     *
+     * @return string
+     */
+    public static function getClassName()
+    {
+        return get_called_class();
+    }
+
+    /**
      * Get the state of the ignore unknown tokens flag.
      *
      * @return boolean
