@@ -487,6 +487,11 @@ class TreeCompiler
         $result = new XrefTokenResolverCollection();
         // parse
         foreach ($tokenResolversInfo as $tokenResolverKey => $tokenResolverInfo) {
+            if (isset($tokenResolverInfo[$this->xrefTokenResolverOptionsKey])) {
+                $options = $tokenResolverInfo[$this->xrefTokenResolverOptionsKey];
+            } else {
+                $options = null;
+            }
             $tokenResolver = TokenResolverFactory::get($tokenResolverInfo[$this->xrefTokenResolverTypeKey]);
             $xrefTokenResolver = new XrefTokenResolver($tokenResolver);
             $values = $resolverValues[$tokenResolverKey];

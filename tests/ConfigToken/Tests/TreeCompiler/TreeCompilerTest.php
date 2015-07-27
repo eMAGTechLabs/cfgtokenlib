@@ -231,4 +231,66 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $compiled);
     }
+
+    public function testChainedResolvers()
+    {
+        $xrefDep1 = new Xref('file', 'dep1.json');
+        $xrefDep1->setData(
+            array(
+                'a' => '[[{{inner}}:token]]',
+                '[[{{inner}}:token]]' => 'b',
+            )
+        )->setResolved(true);
+
+        $xrefMain = new Xref('file', 'main.json');
+        $xrefMain->setData(
+            array(
+                'include' => array(
+                    'xref' => array(
+                        'dep1' => array(
+                            'type' => 'file',
+                            'src' => 'dep1.json',
+                            'resolve' => array(
+                                array(
+                                    'type' => 'registered',
+                                    'options' => array(
+                                        'token-prefix' => '{{',
+                                        'token-suffix' => '}}',
+                                    ),
+                                    'values' => array(
+                                        'inner' => 'outer',
+                                    ),
+                                ),
+                                array(
+                                    'type' => 'registered',
+                                    'options' => array(
+                                        'token-prefix' => '[[',
+                                        'token-suffix' => ']]',
+                                    ),
+                                    'values' => array(
+                                        'outer:token' => 'value',
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                    'main' => array(
+                        'dep1',
+                    ),
+                ),
+            )
+        )->setResolved(true);
+
+        $treeCompiler = new TreeCompiler();
+        $treeCompiler->getXrefs()->add($xrefDep1);
+
+        $compiled = $treeCompiler->compileXref($xrefMain);
+
+        $expected = array(
+            'a' => 'value',
+            'value' => 'b',
+        );
+
+        $this->assertEquals($expected, $compiled);
+    }
 }
