@@ -293,4 +293,187 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $compiled);
     }
+
+    public function testTokensInXrefLocation()
+    {
+        $xrefDep1 = new Xref('file', 'dep1.json');
+        $xrefDep1->setData(
+            array(
+                'content' => 'dep1.json',
+                'dep1version' => '{{version}}',
+            )
+        )->setResolved(true);
+
+        $xrefDep2 = new Xref('file', 'dep2.json');
+        $xrefDep2->setData(
+            array(
+                'content' => 'dep2.json',
+                'dep2version' => '{{version}}',
+            )
+        )->setResolved(true);
+
+        $xrefDep3 = new Xref('file', 'dep3.json');
+        $xrefDep3->setData(
+            array(
+                'include' => array(
+                    'xref' => array(
+                        'versionedDep' => array(
+                            'type' => 'file',
+                            'src' => 'dep{{version}}.json',
+                        ),
+                    ),
+                    'main' => array(
+                        'versionedDep',
+                    ),
+                    'add' => array(
+                        'version' => '{{version}}'
+                    )
+                ),
+            )
+        )->setResolved(true);
+
+        $xrefMain = new Xref('file', 'main.json');
+        $xrefMain->setData(
+            array(
+                'include' => array(
+                    'xref' => array(
+                        'dep3-1' => array(
+                            'type' => 'file',
+                            'src' => 'dep3.json',
+                            'resolve' => array(
+                                array(
+                                    'type' => 'registered',
+                                    'options' => array(
+                                        'token-prefix' => '{{',
+                                        'token-suffix' => '}}',
+                                    ),
+                                    'values' => array(
+                                        'version' => '1',
+                                    ),
+                                ),
+                            ),
+                        ),
+                        'dep3-2' => array(
+                            'type' => 'file',
+                            'src' => 'dep3.json',
+                            'resolve' => array(
+                                array(
+                                    'type' => 'registered',
+                                    'options' => array(
+                                        'token-prefix' => '{{',
+                                        'token-suffix' => '}}',
+                                    ),
+                                    'values' => array(
+                                        'version' => '2',
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                    'main' => array(
+                        'dep3-1',
+                        'dep3-2',
+                    ),
+                ),
+            )
+        )->setResolved(true);
+
+        $treeCompiler = new TreeCompiler();
+        $treeCompiler->getXrefs()->add($xrefDep1);
+        $treeCompiler->getXrefs()->add($xrefDep2);
+        $treeCompiler->getXrefs()->add($xrefDep3);
+
+        $compiled = $treeCompiler->compileXref($xrefMain);
+
+        $expected = array(
+            'content' => 'dep2.json',
+            'dep1version' => 1,
+            'dep2version' => 2,
+        );
+
+        $this->assertEquals($expected, $compiled);
+    }
+
+    public function testTokensInValuesXrefLocation()
+    {
+        $xrefDep1 = new Xref('file', 'dep1.json');
+        $xrefDep1->setData(
+            array(
+                'content' => 'dep1.json',
+                'dep1version' => '{{version}}',
+            )
+        )->setResolved(true);
+
+        $xrefDep2 = new Xref('file', 'dep2.json');
+        $xrefDep2->setData(
+            array(
+                'include' => array(
+                    'xref' => array(
+                        'dep1' => array(
+                            'type' => 'file',
+                            'src' => 'dep1.json',
+                            'resolve' => array(
+                                array(
+                                    'type' => 'registered',
+                                    'options' => array(
+                                        'token-prefix' => '{{',
+                                        'token-suffix' => '}}',
+                                    ),
+                                    'values-xref' => array(
+                                        'type' => 'file',
+                                        'src' => 'dep{{version}}.json',
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                    'main' => array(
+                        'dep1',
+                    ),
+                ),
+            )
+        )->setResolved(true);
+
+        $xrefMain = new Xref('file', 'main.json');
+        $xrefMain->setData(
+            array(
+                'include' => array(
+                    'xref' => array(
+                        'dep2' => array(
+                            'type' => 'file',
+                            'src' => 'dep2.json',
+                            'resolve' => array(
+                                array(
+                                    'type' => 'registered',
+                                    'options' => array(
+                                        'token-prefix' => '{{',
+                                        'token-suffix' => '}}',
+                                    ),
+                                    'values' => array(
+                                        'version' => '1',
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                    'main' => array(
+                        'dep2',
+                    ),
+                ),
+            )
+        )->setResolved(true);
+
+        $treeCompiler = new TreeCompiler();
+        $treeCompiler->getXrefs()->add($xrefDep1);
+        $treeCompiler->getXrefs()->add($xrefDep2);
+
+        $compiled = $treeCompiler->compileXref($xrefMain);
+
+        $expected = array(
+            'content' => 'dep1.json',
+            'dep1version' => 1,
+        );
+
+        $this->assertEquals($expected, $compiled);
+    }
 }

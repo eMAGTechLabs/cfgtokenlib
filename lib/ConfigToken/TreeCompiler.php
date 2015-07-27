@@ -327,14 +327,18 @@ class TreeCompiler
     /**
      * @param string $xrefKey
      * @param string|array $xrefInfo
+     * @param XrefTokenResolverCollection $xrefTokenResolvers
      * @return Xref|mixed
      * @throws TreeCompilerFormatException
      * @throws \Exception
      */
-    protected function parseXrefInfo($xrefKey, $xrefInfo)
+    protected function parseXrefInfo($xrefKey, $xrefInfo, XrefTokenResolverCollection $xrefTokenResolvers = null)
     {
         if (gettype($xrefInfo) == 'string') {
             list($xrefType, $xrefLocation) = Xref::parseDefinitionString($xrefInfo, $this->xrefTypeAndLocationDelimiter);
+            if (isset($xrefTokenResolvers)) {
+                $xrefLocation = $xrefTokenResolvers->applyToString($xrefLocation);
+            }
             $xrefId = Xref::computeId($xrefType, $xrefLocation);
             if ($this->xrefs->hasById($xrefId)) {
                 return $this->xrefs[$xrefId];
@@ -370,6 +374,9 @@ class TreeCompiler
 
         $xrefType = $xrefInfo[$this->includeXrefTypeKey];
         $xrefLocation = $xrefInfo[$this->includeXrefLocationKey];
+        if (isset($xrefTokenResolvers)) {
+            $xrefLocation = $xrefTokenResolvers->applyToString($xrefLocation);
+        }
         $xrefId = Xref::computeId($xrefType, $xrefLocation);
         try {
             $xref = $this->xrefs->getById($xrefId);
@@ -383,12 +390,13 @@ class TreeCompiler
     /**
      * Parse the array corresponding to the $includeKey:$includeXrefKey:<xref name>:$includeXrefResolveKey.
      *
-     * @param array $tokenResolversInfo
      * @param string $xrefKey
+     * @param array $tokenResolversInfo
+     * @param XrefTokenResolverCollection $tokenResolvers
      * @return XrefTokenResolverCollection
      * @throws \Exception
      */
-    protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo)
+    protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo, XrefTokenResolverCollection $tokenResolvers = null)
     {
         $resolverValues = array();
         $tokenResolverDefinitionIndex = 0;
@@ -477,7 +485,8 @@ class TreeCompiler
                 $xrefInfo = $tokenResolverInfo[$this->xrefTokenResolverValuesXrefKey];
                 $xref = $this->parseXrefInfo(
                     sprintf('%s.%s[%d]', $xrefKey, $this->includeXrefResolversKey, $tokenResolverDefinitionIndex),
-                    $xrefInfo
+                    $xrefInfo,
+                    $tokenResolvers
                 );
                 $resolverValues[$tokenResolverKey] = $xref;
             }
@@ -719,13 +728,15 @@ class TreeCompiler
         foreach ($xrefsToBeParsed as $xrefKey => $xrefInfo) {
             $xref = $this->parseXrefInfo(
                 $xrefKey,
-                $xrefInfo
+                $xrefInfo,
+                $tokenResolvers
             );
 
             if (is_array($xrefInfo) && isset($xrefInfo[$this->includeXrefResolversKey])) {
                 $xrefTokenResolvers = $this->parseXrefTokenResolverDefinitions(
                     $xrefKey,
-                    $xrefInfo[$this->includeXrefResolversKey]
+                    $xrefInfo[$this->includeXrefResolversKey],
+                    $tokenResolvers
                 );
             } else {
                 $xrefTokenResolvers = null;

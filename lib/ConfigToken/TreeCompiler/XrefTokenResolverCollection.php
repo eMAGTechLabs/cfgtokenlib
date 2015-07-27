@@ -89,6 +89,17 @@ class XrefTokenResolverCollection
         unset($value);
     }
 
+    public function applyToString($string)
+    {
+        foreach ($this->collection as $xrefTokenResolver) {
+            $tokenParser = $xrefTokenResolver->getTokenParser();
+            $tokens = $tokenParser->parseString($string);
+            $this->resolveTokens($tokens, $xrefTokenResolver);
+            $string = TokenInjector::injectString($string, $tokens);
+        }
+        return $string;
+    }
+
     public function applyToArray(&$array)
     {
         foreach ($this->collection as $xrefTokenResolver) {
