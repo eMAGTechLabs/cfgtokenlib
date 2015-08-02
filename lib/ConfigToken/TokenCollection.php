@@ -210,6 +210,21 @@ class TokenCollection implements \IteratorAggregate
     }
 
     /**
+     * Get all token names.
+     *
+     * @return string[]
+     */
+    public function getNames()
+    {
+        $result = array();
+        foreach ($this->tokens as $token) {
+            $tokenName = $token->getTokenName();
+            $result[$tokenName] = $tokenName;
+        }
+        return $result;
+    }
+
+    /**
      * Find tokens having the given token name.
      *
      * @param string|string[]|null $tokenNameToFind Null to find all. String to find a certain token. Array of strings
