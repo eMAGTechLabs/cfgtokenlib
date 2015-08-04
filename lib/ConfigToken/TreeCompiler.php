@@ -115,7 +115,7 @@ class TreeCompiler
         $this->xrefTokenResolverRequiredOptionKeys = array(
             RegisteredTokenResolver::getBaseType() => array(),
             ScopeTokenResolver::getBaseType() => array(
-                $this->xrefTokenResolverOptionScopeTokenNameKey,
+                $this->xrefTokenResolverOptionScopeTokenNameKey => $stringType,
             )
         );
     }
