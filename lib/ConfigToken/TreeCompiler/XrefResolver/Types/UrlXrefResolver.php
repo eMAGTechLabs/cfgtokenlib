@@ -67,6 +67,7 @@ class UrlXrefResolver extends AbstractXrefResolver
             $serializer = TreeSerializerFactory::getByFileExtension($fileExtension);
             $xref->setContentType($serializer::getContentType());
         }
+        // TODO: catch exception, show xref location in error message
         $data = $serializer::deserialize($data);
         $xref->setData($data);
         $xref->setResolved(true);
