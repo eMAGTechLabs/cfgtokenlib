@@ -5,6 +5,7 @@ namespace ConfigToken\TokenResolver;
 use ConfigToken\Exception\AlreadyRegisteredException;
 use ConfigToken\TokenResolver\Exception\UnknownTokenResolverTypeException;
 use ConfigToken\TokenResolver\Types\JsonScopeTokenResolver;
+use ConfigToken\TokenResolver\Types\OnDemandTokenResolver;
 use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
 use ConfigToken\TokenResolver\Types\ScopeTokenResolver;
 
@@ -21,6 +22,7 @@ class TokenResolverFactory
         static::internalRegister(new RegisteredTokenResolver());
         static::internalRegister(new ScopeTokenResolver());
         static::internalRegister(new JsonScopeTokenResolver());
+        static::internalRegister(new OnDemandTokenResolver());
     }
 
     /**
