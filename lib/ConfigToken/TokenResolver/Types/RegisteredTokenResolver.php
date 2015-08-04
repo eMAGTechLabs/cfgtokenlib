@@ -147,11 +147,11 @@ class RegisteredTokenResolver extends AbstractTokenResolver
         if (is_null($ignoreUnknownTokens)) {
             $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
         }
-        if (isset($this->registeredTokenValues[$tokenName])) {
-            return $this->registeredTokenValues[$tokenName];
+        if ($this->isTokenValueRegistered($tokenName)) {
+            return $this->getRegisteredTokenValue($tokenName);
         }
         if ($ignoreUnknownTokens) {
-            if (empty($this->registeredTokenValues)) {
+            if (!$this->hasRegisteredTokenValues()) {
                 trigger_error('The JSON token resolver has no known values.', E_USER_WARNING);
             }
             return $defaultValue;
