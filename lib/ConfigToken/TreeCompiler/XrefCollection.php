@@ -10,6 +10,11 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
     /** @var Xref[] */
     protected $collection;
 
+    function __construct()
+    {
+        $this->clear();
+    }
+
     /**
      * (PHP 5 &gt;= 5.0.0)<br/>
      * Retrieve an external iterator
@@ -112,15 +117,23 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
 
     public function add(Xref $xref)
     {
-        $this->collection[$xref->getId()] = $xref;
+        $xrefId = $xref->getId();
+        if ($this->hasById($xrefId)) {
+            return $this->getById($xrefId);
+        }
+        $this->collection[] = $xref;
         return $xref;
     }
 
     public function removeById($xrefId)
     {
+        $xref = null;
         if ($this->hasById($xrefId)) {
-            $xref = $this->collection[$xrefId];
-            unset($this->collection[$xrefId]);
+            foreach ($this->collection as $key => $xref) {
+                if ($xref->getId() == $xrefId) {
+                    unset($this->collection[$key]);
+                }
+            }
         } else {
             throw new \Exception(
                 sprintf(
@@ -152,7 +165,12 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
 
     public function hasById($xrefId)
     {
-        return isset($this->collection[$xrefId]);
+        foreach ($this->collection as $xref) {
+            if ($xref->getId() == $xrefId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function has(Xref $xref)
@@ -162,10 +180,12 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
 
     public function getById($xrefId)
     {
-        if (!$this->hasById($xrefId)) {
-            throw new \Exception(sprintf('Xref with Id "%s" not in collection.', $xrefId));
+        foreach ($this->collection as $xref) {
+            if ($xref->getId() == $xrefId) {
+                return $xref;
+            }
         }
-        return $this->collection[$xrefId];
+        throw new \Exception(sprintf('Xref with Id "%s" not in collection.', $xrefId));
     }
 
     public function parse($xrefs, $typeDelimiter, $overwrite = False, $ignore = True)
@@ -176,7 +196,7 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
         $parsed = array();
         foreach ($xrefs as $key => $value) {
             $xref = Xref::makeFromDefinitionString($value, $typeDelimiter);
-            if (isset($this->collection[$xref->getId()])) {
+            if ($this->has($xref)) {
                 if (!$ignore) {
                     throw new AlreadyRegisteredException(
                         sprintf(
@@ -187,12 +207,12 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
                     );
                 }
                 if ($overwrite && (!$ignore)) {
-                    $this->collection[$xref->getId()] = $xref;
+                    $this->add($xref);
                 }
             } else {
-                $this->collection[$xref->getId()] = $xref;
+                $this->add($xref);
             }
-            $parsed[$key] = $this->collection[$xref->getId()];
+            $parsed[$key] = $xref;
         }
         return $parsed;
     }
@@ -207,10 +227,10 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
         return false;
     }
 
-    public function resolve()
+    public function resolve($force = false)
     {
         foreach($this->collection as $xref) {
-            $xref->resolve();
+            $xref->resolve($force);
         }
     }
 }

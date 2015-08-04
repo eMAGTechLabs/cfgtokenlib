@@ -25,8 +25,8 @@ class Xref
 
     function __construct($type, $location)
     {
-        $this->type = $type;
-        $this->location = $location;
+        $this->setType($type);
+        $this->setLocation($location);
     }
 
     /**
@@ -87,6 +87,11 @@ class Xref
         return $this;
     }
 
+    public function getResolver()
+    {
+        return XrefResolverFactory::getByType($this->type);
+    }
+
     public function resolve($force = false)
     {
         if ($this->isResolved() && (!$force)) {
@@ -95,7 +100,7 @@ class Xref
         if (!$this->hasType()) {
             throw new \Exception('Unable to resolve Xref without type.');
         }
-        $resolver = XrefResolverFactory::getByType($this->type);
+        $resolver = $this->getResolver();
         $resolver::resolve($this, $force);
     }
 
@@ -126,6 +131,12 @@ class Xref
         return $this->location;
     }
 
+    public static function computeAbsoluteLocation($xrefType, $xrefLocation, $xrefPath)
+    {
+        $resolver = XrefResolverFactory::getByType($xrefType);
+        return $resolver::getAbsoluteLocation($xrefLocation, $xrefPath);
+    }
+
     public static function computeId($type, $location)
     {
         return md5($type . $location);
@@ -138,6 +149,12 @@ class Xref
 
     public function setLocation($value)
     {
+        if (isset($value)) {
+            $resolver = $this->getResolver();
+            if (isset($resolver)) {
+                $value = $resolver->getPlatformSpecificLocation($value);
+            }
+        }
         $this->location = $value;
 
         return $this;
@@ -175,4 +192,11 @@ class Xref
 
         return $this;
     }
+
+    function __toString()
+    {
+        return $this->getId() . ':' . $this->getType() . ':' . $this->getLocation();
+    }
+
+
 }

@@ -15,21 +15,21 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
      */
     public function testTokenResolverDefinitionValidator1()
     {
-        $xrefDep5 = new Xref('file', 'dep5.json');
+        $xrefDep5 = new Xref('file', '/dep5.json');
         $xrefDep5->setData(
             array(
                 'key_with_registered_token' => 'token {{here}}',
             )
         )->setResolved(true);
 
-        $xrefDep4 = new Xref('file', 'dep4.json');
+        $xrefDep4 = new Xref('file', '/dep4.json');
         $xrefDep4->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'dep5' => array(
                             'type' => 'file',
-                            'src' => 'dep5.json',
+                            'src' => '/dep5.json',
                             'resolve' => array(
                                 array(
                                     'options' => array(
@@ -69,21 +69,21 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
      */
     public function testTokenResolverDefinitionValidator2()
     {
-        $xrefDep5 = new Xref('file', 'dep5.json');
+        $xrefDep5 = new Xref('file', '/dep5.json');
         $xrefDep5->setData(
             array(
                 'key_with_registered_token' => 'token {{here}}',
             )
         )->setResolved(true);
 
-        $xrefDep4 = new Xref('file', 'dep4.json');
+        $xrefDep4 = new Xref('file', '/dep4.json');
         $xrefDep4->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'dep5' => array(
                             'type' => 'file',
-                            'src' => 'dep5.json',
+                            'src' => '/dep5.json',
                             'resolve' => array(
                                 1
                             ),
@@ -111,7 +111,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 
     public function testTreeCompiler()
     {
-        $xrefDep5 = new Xref('file', 'dep5.json');
+        $xrefDep5 = new Xref('file', '/dep5.json');
         $xrefDep5->setData(
             array(
                 'key_from_dep5' => 'value from dep5',
@@ -120,14 +120,14 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefDep4 = new Xref('file', 'dep4.json');
+        $xrefDep4 = new Xref('file', '/dep4.json');
         $xrefDep4->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'dep5' => array(
                             'type' => 'file',
-                            'src' => 'dep5.json',
+                            'src' => '/dep5.json',
                             'resolve' => array(
                                 array(
                                     'type' => 'registered',
@@ -155,13 +155,13 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefDep3 = new Xref('file', 'dep3.json');
+        $xrefDep3 = new Xref('file', '/dep3.json');
         $xrefDep3->setData(
             array(
                 'include' => array(
                     'xref' => array(
-                        'dep5' => 'file:dep5.json',
-                        'dep4' => 'file:dep4.json',
+                        'dep5' => 'file:\dep5.json',
+                        'dep4' => 'file:\dep4.json',
                     ),
                     'main' => array(
                         'dep5',
@@ -175,7 +175,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefDep2 = new Xref('file', 'dep2.json');
+        $xrefDep2 = new Xref('file', '/dep2.json');
         $xrefDep2->setData(
             array(
                 'add' => array(
@@ -187,13 +187,13 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefMain = new Xref('file', 'main.json');
+        $xrefMain = new Xref('file', '/main.json');
         $xrefMain->setData(
             array(
                 'include' => array(
                     'xref' => array(
-                        'dep3' => 'file:dep3.json',
-                        'dep2' => 'file:dep2.json',
+                        'dep3' => 'file:\dep3.json',
+                        'dep2' => 'file:\dep2.json',
                     ),
                     'main' => array(
                         'dep2',
@@ -234,7 +234,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 
     public function testChainedResolvers()
     {
-        $xrefDep1 = new Xref('file', 'dep1.json');
+        $xrefDep1 = new Xref('file', '/dep1.json');
         $xrefDep1->setData(
             array(
                 'a' => '[[{{inner}}:token]]',
@@ -242,14 +242,14 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefMain = new Xref('file', 'main.json');
+        $xrefMain = new Xref('file', '/main.json');
         $xrefMain->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'dep1' => array(
                             'type' => 'file',
-                            'src' => 'dep1.json',
+                            'src' => '/dep1.json',
                             'resolve' => array(
                                 array(
                                     'type' => 'registered',
@@ -296,7 +296,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 
     public function testTokensInXrefLocation()
     {
-        $xrefDep1 = new Xref('file', 'dep1.json');
+        $xrefDep1 = new Xref('file', '/dep1.json');
         $xrefDep1->setData(
             array(
                 'content' => 'dep1.json',
@@ -304,7 +304,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefDep2 = new Xref('file', 'dep2.json');
+        $xrefDep2 = new Xref('file', '/dep2.json');
         $xrefDep2->setData(
             array(
                 'content' => 'dep2.json',
@@ -312,14 +312,14 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefDep3 = new Xref('file', 'dep3.json');
+        $xrefDep3 = new Xref('file', '/dep3.json');
         $xrefDep3->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'versionedDep' => array(
                             'type' => 'file',
-                            'src' => 'dep{{version}}.json',
+                            'src' => '/dep{{version}}.json',
                         ),
                     ),
                     'main' => array(
@@ -332,14 +332,14 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefMain = new Xref('file', 'main.json');
+        $xrefMain = new Xref('file', '/main.json');
         $xrefMain->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'dep3-1' => array(
                             'type' => 'file',
-                            'src' => 'dep3.json',
+                            'src' => '/dep3.json',
                             'resolve' => array(
                                 array(
                                     'type' => 'registered',
@@ -355,7 +355,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
                         ),
                         'dep3-2' => array(
                             'type' => 'file',
-                            'src' => 'dep3.json',
+                            'src' => '/dep3.json',
                             'resolve' => array(
                                 array(
                                     'type' => 'registered',
@@ -396,7 +396,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
 
     public function testTokensInValuesXrefLocation()
     {
-        $xrefDep1 = new Xref('file', 'dep1.json');
+        $xrefDep1 = new Xref('file', '/dep1.json');
         $xrefDep1->setData(
             array(
                 'content' => 'dep1.json',
@@ -404,14 +404,14 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefDep2 = new Xref('file', 'dep2.json');
+        $xrefDep2 = new Xref('file', '/dep2.json');
         $xrefDep2->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'dep1' => array(
                             'type' => 'file',
-                            'src' => 'dep1.json',
+                            'src' => '/dep1.json',
                             'resolve' => array(
                                 array(
                                     'type' => 'registered',
@@ -421,7 +421,7 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
                                     ),
                                     'values-xref' => array(
                                         'type' => 'file',
-                                        'src' => 'dep{{version}}.json',
+                                        'src' => '/dep{{version}}.json',
                                     ),
                                 ),
                             ),
@@ -434,14 +434,14 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             )
         )->setResolved(true);
 
-        $xrefMain = new Xref('file', 'main.json');
+        $xrefMain = new Xref('file', '/main.json');
         $xrefMain->setData(
             array(
                 'include' => array(
                     'xref' => array(
                         'dep2' => array(
                             'type' => 'file',
-                            'src' => 'dep2.json',
+                            'src' => '/dep2.json',
                             'resolve' => array(
                                 array(
                                     'type' => 'registered',

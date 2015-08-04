@@ -13,6 +13,9 @@ class XrefResolverFactory
     /** @var XrefResolverInterface[] */
     protected static $registeredByType = array();
 
+    /**
+     * Register all known resolvers.
+     */
     protected static function registerKnownTypes()
     {
         if (!empty(static::$registeredByType)) {
@@ -23,6 +26,8 @@ class XrefResolverFactory
     }
 
     /**
+     * Get a registered resolver for the given type.
+     *
      * @param string $xrefType
      * @return XrefResolverInterface
      *
@@ -37,16 +42,33 @@ class XrefResolverFactory
         throw new UnknownXrefTypeException($xrefType);
     }
 
+    /**
+     * Check if the given resolver is registerd.
+     *
+     * @param XrefResolverInterface $xrefResolver
+     * @return boolean
+     */
     public static function isRegistered(XrefResolverInterface $xrefResolver)
     {
         return (isset(static::$registeredByType[$xrefResolver::getType()]));
     }
 
+    /**
+     * Used internally to register a new resolver.
+     *
+     * @param XrefResolverInterface $xrefResolver
+     */
     protected static function internalRegister(XrefResolverInterface $xrefResolver)
     {
         static::$registeredByType[$xrefResolver::getType()] = $xrefResolver;
     }
 
+    /**
+     * Register a new resolver.
+     *
+     * @param XrefResolverInterface $xrefResolver
+     * @throws AlreadyRegisteredException
+     */
     public static function register(XrefResolverInterface $xrefResolver)
     {
         if (static::isRegistered($xrefResolver)) {

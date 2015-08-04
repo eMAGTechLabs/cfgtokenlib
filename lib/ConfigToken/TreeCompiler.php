@@ -328,63 +328,56 @@ class TreeCompiler
      * @param string $xrefKey
      * @param string|array $xrefInfo
      * @param XrefTokenResolverCollection $xrefTokenResolvers
+     * @param Xref[] $xrefPath
      * @return Xref|mixed
      * @throws TreeCompilerFormatException
      * @throws \Exception
      */
-    protected function parseXrefInfo($xrefKey, $xrefInfo, XrefTokenResolverCollection $xrefTokenResolvers = null)
+    protected function parseXrefInfo($xrefKey, $xrefInfo, XrefTokenResolverCollection $xrefTokenResolvers = null, $xrefPath)
     {
         if (gettype($xrefInfo) == 'string') {
             list($xrefType, $xrefLocation) = Xref::parseDefinitionString($xrefInfo, $this->xrefTypeAndLocationDelimiter);
-            if (isset($xrefTokenResolvers)) {
-                $xrefLocation = $xrefTokenResolvers->applyToString($xrefLocation);
-            }
-            $xrefId = Xref::computeId($xrefType, $xrefLocation);
-            if ($this->xrefs->hasById($xrefId)) {
-                return $this->xrefs[$xrefId];
-            }
-            $xref = new Xref($xrefType, $xrefLocation);
-            return $xref;
-        }
-
-        if (!is_array($xrefInfo)) {
-            throw new TreeCompilerFormatException(
-                sprintf(
-                    'The Xref definition key "%s" must be a string with the format xref_type %s xref_location ' .
-                    'or an associative array with the keys "%s" for type and "%s" for location.',
-                    $this->xrefTypeAndLocationDelimiter,
-                    $this->includeXrefTypeKey,
-                    $this->includeXrefLocationKey
-                )
-            );
-        }
-
-        $requiredKeys = array($this->includeXrefTypeKey, $this->includeXrefLocationKey);
-        foreach ($requiredKeys as $requiredKey) {
-            if (!isset($xrefInfo[$requiredKey])) {
+        } else {
+            if (!is_array($xrefInfo)) {
                 throw new TreeCompilerFormatException(
                     sprintf(
-                        'The "%s" key is missing from the Xref definition with the key "%s".',
-                        $requiredKey,
-                        $xrefKey
+                        'The Xref definition key "%s" must be a string with the format xref_type %s xref_location ' .
+                        'or an associative array with the keys "%s" for type and "%s" for location.',
+                        $this->xrefTypeAndLocationDelimiter,
+                        $this->includeXrefTypeKey,
+                        $this->includeXrefLocationKey
                     )
                 );
             }
+
+            $requiredKeys = array($this->includeXrefTypeKey, $this->includeXrefLocationKey);
+            foreach ($requiredKeys as $requiredKey) {
+                if (!isset($xrefInfo[$requiredKey])) {
+                    throw new TreeCompilerFormatException(
+                        sprintf(
+                            'The "%s" key is missing from the Xref definition with the key "%s".',
+                            $requiredKey,
+                            $xrefKey
+                        )
+                    );
+                }
+            }
+
+            $xrefType = $xrefInfo[$this->includeXrefTypeKey];
+            $xrefLocation = $xrefInfo[$this->includeXrefLocationKey];
         }
 
-        $xrefType = $xrefInfo[$this->includeXrefTypeKey];
-        $xrefLocation = $xrefInfo[$this->includeXrefLocationKey];
         if (isset($xrefTokenResolvers)) {
             $xrefLocation = $xrefTokenResolvers->applyToString($xrefLocation);
         }
+        $xrefLocation = Xref::computeAbsoluteLocation($xrefType, $xrefLocation, $xrefPath);
+
         $xrefId = Xref::computeId($xrefType, $xrefLocation);
-        try {
-            $xref = $this->xrefs->getById($xrefId);
-        } catch (\Exception $e) {
-            $xref = new Xref($xrefType, $xrefLocation);
+        if ($this->xrefs->hasById($xrefId)) {
+            return $this->xrefs[$xrefId];
         }
 
-        return $xref;
+        return new Xref($xrefType, $xrefLocation);
     }
 
     /**
@@ -393,10 +386,11 @@ class TreeCompiler
      * @param string $xrefKey
      * @param array $tokenResolversInfo
      * @param XrefTokenResolverCollection $tokenResolvers
+     * @param Xref[] $xrefPath
      * @return XrefTokenResolverCollection
      * @throws \Exception
      */
-    protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo, XrefTokenResolverCollection $tokenResolvers = null)
+    protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo, XrefTokenResolverCollection $tokenResolvers = null, $xrefPath)
     {
         $resolverValues = array();
         $tokenResolverDefinitionIndex = 0;
@@ -486,7 +480,8 @@ class TreeCompiler
                 $xref = $this->parseXrefInfo(
                     sprintf('%s.%s[%d]', $xrefKey, $this->includeXrefResolversKey, $tokenResolverDefinitionIndex),
                     $xrefInfo,
-                    $tokenResolvers
+                    $tokenResolvers,
+                    $xrefPath
                 );
                 $resolverValues[$tokenResolverKey] = $xref;
             }
@@ -556,7 +551,7 @@ class TreeCompiler
      * @param XrefTokenResolverCollection $tokenResolvers
      * @param string|null $includeType
      * @param string|array|null $includeTypeValue
-     * @param array $visited
+     * @param array $xrefPath
      * @return array
      *
      * @throws CircularReferenceException
@@ -567,7 +562,7 @@ class TreeCompiler
      * @throws \Exception
      */
     protected function recursiveCompileXref(Xref $xref, XrefTokenResolverCollection $tokenResolvers = null,
-                                            $includeType = null, $includeTypeValue = null, &$visited)
+                                            $includeType = null, $includeTypeValue = null, &$xrefPath)
     {
         static $XREF_KEY = 0;
         static $XREF_RESOLVERS_KEY = 1;
@@ -722,21 +717,23 @@ class TreeCompiler
         unset($xrefDataIncludeXrefs);
 
         $xrefId = $xref->getId();
-        $visited[$xrefId] = sprintf('%s:%s', $xref->getType(), $xref->getLocation());
+        $xrefPath[$xrefId] = $xref;
 
         $xrefsToBeResolved = array();
         foreach ($xrefsToBeParsed as $xrefKey => $xrefInfo) {
             $xref = $this->parseXrefInfo(
                 $xrefKey,
                 $xrefInfo,
-                $tokenResolvers
+                $tokenResolvers,
+                $xrefPath
             );
 
             if (is_array($xrefInfo) && isset($xrefInfo[$this->includeXrefResolversKey])) {
                 $xrefTokenResolvers = $this->parseXrefTokenResolverDefinitions(
                     $xrefKey,
                     $xrefInfo[$this->includeXrefResolversKey],
-                    $tokenResolvers
+                    $tokenResolvers,
+                    $xrefPath
                 );
             } else {
                 $xrefTokenResolvers = null;
@@ -753,12 +750,12 @@ class TreeCompiler
         foreach ($xrefsToBeResolved as $xrefToBeResolved) {
             /** @var Xref $includedXref */
             $includedXref = $xrefToBeResolved[$XREF_KEY];
-            if (isset($visited[$includedXref->getId()])) {
+            if (isset($xrefPath[$includedXref->getId()])) {
                 throw new CircularReferenceException(
                     sprintf(
                         'Tree compiler encountered circular reference at "%s" in path ["%s"].',
                         sprintf('%s:%s', $includedXref->getType(), $includedXref->getLocation()),
-                        implode('", "', $visited)
+                        implode('", "', $xrefPath)
                     )
                 );
             }
@@ -768,14 +765,14 @@ class TreeCompiler
                 $xrefToBeResolved[$XREF_RESOLVERS_KEY],
                 static::INCLUDE_TYPE_GROUP,
                 $this->includeMainKey,
-                $visited
+                $xrefPath
             );
             if (isset($tokenResolvers)) {
                 $tokenResolvers->applyToArray($includeData);
             }
             $this->recursiveAddData($includeData, $result);
         }
-        unset($visited[$xrefId]);
+        unset($xrefPath[$xrefId]);
 
         if (isset($xrefData[$this->removeKey])) {
             $this->recursiveRemoveData($xrefData[$this->removeKey], $result);
@@ -790,8 +787,8 @@ class TreeCompiler
 
     public function compileXref(Xref $xref, $includeType = null, $includeTypeValue = null)
     {
-        $visited = array();
-        $compiledData = $this->recursiveCompileXref($xref, null, $includeType, $includeTypeValue, $visited);
+        $xrefPath = array();
+        $compiledData = $this->recursiveCompileXref($xref, null, $includeType, $includeTypeValue, $xrefPath);
         return $compiledData;
     }
 
