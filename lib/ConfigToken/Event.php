@@ -16,7 +16,7 @@ class Event
     /**
      * @param string $id The event id.
      */
-    function __construct($id)
+    public function __construct($id)
     {
         $this->setId($id);
         $this->data = array();

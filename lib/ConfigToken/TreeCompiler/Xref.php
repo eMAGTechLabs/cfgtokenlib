@@ -23,7 +23,7 @@ class Xref
     protected $resolved = false;
 
 
-    function __construct($type, $location)
+    public function __construct($type, $location)
     {
         $this->setType($type);
         $this->setLocation($location);

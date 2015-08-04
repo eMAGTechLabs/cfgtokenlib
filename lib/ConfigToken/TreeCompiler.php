@@ -82,7 +82,7 @@ class TreeCompiler
     const INCLUDE_TYPE_GROUP = 'group';
     const INCLUDE_TYPE_XREF = 'xref';
 
-    function __construct(XrefCollection $xrefs = null)
+    public function __construct(XrefCollection $xrefs = null)
     {
         if (!isset($xrefs)) {
             $xrefs = new XrefCollection();

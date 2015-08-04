@@ -64,7 +64,7 @@ class ScopeTokenResolver extends AbstractTokenResolver
     protected $serializer;
 
 
-    function __construct($scopeTokenName = null, $scope = null, $ignoreOutOfScope = False)
+    public function __construct($scopeTokenName = null, $scope = null, $ignoreOutOfScope = False)
     {
         $this->setScopeTokenName($scopeTokenName);
         $this->setIgnoreOutOfScope($ignoreOutOfScope);

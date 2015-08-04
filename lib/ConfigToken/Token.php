@@ -42,7 +42,7 @@ class Token
      * @param array $filters Array of filter names applied to the value.
      * @param array $unresolvedFilters Array of filter names that could not be applied to the value.
      */
-    function __construct($offset, $tokenString, $tokenName, $tokenValue = null, array $filters = array(),
+    public function __construct($offset, $tokenString, $tokenName, $tokenValue = null, array $filters = array(),
                          array $unresolvedFilters = array())
     {
         $this->tokenString = $tokenString;

@@ -27,7 +27,7 @@ class TokenCollection implements \IteratorAggregate
     /**
      * @param Token[] $tokens Array of Token with tokenString as keys.
      */
-    function __construct(array $tokens = null)
+    public function __construct(array $tokens = null)
     {
         if (isset($tokens)) {
             $this->tokens = $tokens;

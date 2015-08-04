@@ -19,7 +19,7 @@ class TokenParser
      * @param string $tokenPrefix The token prefix used to create the tokenRegex.
      * @param string $tokenSuffix The token suffix used to create the tokenRegex.
      */
-    function __construct($filterDelimiter = '|', $tokenRegex = null, $tokenPrefix = '[[', $tokenSuffix = ']]')
+    public function __construct($filterDelimiter = '|', $tokenRegex = null, $tokenPrefix = '[[', $tokenSuffix = ']]')
     {
         $this->setFilterDelimiter($filterDelimiter);
         if (isset($tokenRegex)) {

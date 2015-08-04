@@ -11,7 +11,7 @@ class TreeInheritance
     /** @var string */
     protected $removeKey;
 
-    function __construct($addKey = 'add', $removeKey = 'remove')
+    public function __construct($addKey = 'add', $removeKey = 'remove')
     {
         $this->addKey = $addKey;
         $this->removeKey = $removeKey;

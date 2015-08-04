@@ -7,7 +7,7 @@ use ConfigToken\TokenResolver\ScopeValueSerializers\JsonScopeTokenValueSerialize
 
 class JsonScopeTokenResolver extends ScopeTokenResolver
 {
-    function __construct($scopeTokenName = null, $scope = null, $ignoreOutOfScope = False)
+    public function __construct($scopeTokenName = null, $scope = null, $ignoreOutOfScope = False)
     {
         parent::__construct($scopeTokenName, $scope, $ignoreOutOfScope);
         $this->setSerializer(new JsonScopeTokenValueSerializer());

@@ -10,7 +10,7 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
     /** @var Xref[] */
     protected $collection;
 
-    function __construct()
+    public function __construct()
     {
         $this->clear();
     }

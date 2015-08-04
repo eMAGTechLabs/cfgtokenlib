@@ -11,7 +11,7 @@ class TestEventListener implements  EventListenerInterface
     /** @var callable */
     protected $callback;
 
-    function __construct($callback)
+    public function __construct($callback)
     {
         $this->callback = $callback;
     }

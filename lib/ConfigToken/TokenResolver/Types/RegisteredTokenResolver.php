@@ -13,7 +13,7 @@ class RegisteredTokenResolver extends AbstractTokenResolver
     /** @var string[] */
     protected $registeredTokenValues = array();
 
-    function __construct(array $registeredTokenValues = null)
+    public function __construct(array $registeredTokenValues = null)
     {
         if (isset($registeredTokenValues)) {
             $this->setRegisteredTokenValues($registeredTokenValues);
