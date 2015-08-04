@@ -1,6 +1,6 @@
 # ConfigToken Library
 
-[![Build Status](https://travis-ci.org/liutec/cfgtokenlib.png?branch=master)](https://travis-ci.org/liutec/cfgtokenlib) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges) [![Code Coverage](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges)
+[![Build Status](https://travis-ci.org/liutec/cfgtokenlib.png?branch=master)](https://travis-ci.org/liutec/cfgtokenlib) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib) [![Code Coverage](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib)
 
 <img src="https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/quality-score.png?b=master" title="Scrutinizer Code Quality">
 
