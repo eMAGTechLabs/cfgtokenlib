@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/liutec/cfgtokenlib.png?branch=master)](https://travis-ci.org/liutec/cfgtokenlib) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib) [![Code Coverage](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib)
 
-<img src="https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/quality-score.png?b=master" title="Scrutinizer Code Quality">
-
 The ConfigToken library provides the following classes to aid in token parsing, value formatting and injection:
 - **TokenParser**: configurable string parser class used to extract a collection of tokens.
 - **TokenCollection**: generic token collection class used in conjunction with a given token resolver instance to resolve tokens to values and apply the given filters.
