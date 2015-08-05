@@ -26,7 +26,7 @@ class JsonScopeTokenValueSerializer implements ScopeTokenValueSerializerInterfac
                     $result = json_encode($scopeValue);
                     return substr($result, 1, -1); // eliminate quotes
                 } else {
-                    return $scopeValue;
+                    return '' . $scopeValue;
                 }
             case 'boolean':
                 return ($scopeValue ? 'true' : 'false');
