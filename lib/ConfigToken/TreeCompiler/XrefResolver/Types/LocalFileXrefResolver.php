@@ -4,6 +4,7 @@ namespace ConfigToken\TreeCompiler\XrefResolver\Types;
 
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFetchException;
 use ConfigToken\TreeCompiler\Xref;
+use ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException;
 use ConfigToken\TreeSerializer\TreeSerializerFactory;
 
 
@@ -123,7 +124,11 @@ class LocalFileXrefResolver extends AbstractXrefResolver
             $serializer = TreeSerializerFactory::getByFileExtension($fileExtension);
             $xref->setContentType($serializer::getContentType());
         }
-        $data = $serializer::deserialize($data);
+        try {
+            $data = $serializer::deserialize($data);
+        } catch (TreeSerializerSyntaxException $e) {
+            throw new XrefResolverFetchException($xref, $e->getMessage());
+        }
         $xref->setData($data);
         $xref->setResolved(true);
     }
