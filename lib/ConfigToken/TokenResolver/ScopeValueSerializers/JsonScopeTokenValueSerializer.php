@@ -11,7 +11,7 @@ class JsonScopeTokenValueSerializer implements ScopeTokenValueSerializerInterfac
     /**
      * Serialize the given value from the scope to a string representation.
      *
-     * @param array $scopeValue
+     * @param array|string $scopeValue
      * @param boolean $escape
      * @return string
      * @throws ScopeTokenValueSerializationException

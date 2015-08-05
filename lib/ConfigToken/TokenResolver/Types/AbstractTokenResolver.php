@@ -33,7 +33,7 @@ abstract class AbstractTokenResolver implements TokenResolverInterface
      * Set the state of the ignore unknown tokens flag.
      *
      * @param boolean $value
-     * @return boolean
+     * @return $this
      */
     public function setIgnoreUnknownTokens($value)
     {

@@ -62,9 +62,9 @@ class TreeCompiler
     protected $xrefTokenResolverOptionScopeTokenLevelDelimiterKey = 'scope-token-level-delimiter';
     /** @var string */
     protected $xrefTokenResolverOptionIgnoreOutOfScopeKey = 'ignore-out-of-scope';
-    /** @var string[] */
+    /** @var array */
     protected $xrefTokenResolverOptionKeys = array();
-    /** @var string[] */
+    /** @var array */
     protected $xrefTokenResolverRequiredOptionKeys = array();
     /** @var string[] */
     protected $xrefTokenResolverOptionSetterMapping = array();
@@ -115,7 +115,7 @@ class TreeCompiler
         $this->xrefTokenResolverRequiredOptionKeys = array(
             RegisteredTokenResolver::getBaseType() => array(),
             ScopeTokenResolver::getBaseType() => array(
-                $this->xrefTokenResolverOptionScopeTokenNameKey => $stringType,
+                $this->xrefTokenResolverOptionScopeTokenNameKey => true,
             )
         );
     }
@@ -209,6 +209,15 @@ class TreeCompiler
         switch ($includeType) {
             case static::INCLUDE_TYPE_XREF:
                 $missing = array();
+                if (!is_array($includeTypeValue)) {
+                    throw new XrefResolverFormatException(
+                        $xref,
+                        sprintf(
+                            'Include type value must be an array, %s given.',
+                            gettype($includeTypeValue)
+                        )
+                    );
+                }
                 foreach ($includeTypeValue as $xrefKey) {
                     if (!isset($xrefDataIncludeXrefs[$xrefKey])) {
                         $missing[] = $xrefKey;

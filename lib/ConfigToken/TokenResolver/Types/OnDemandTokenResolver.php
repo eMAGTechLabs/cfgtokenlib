@@ -23,6 +23,14 @@ class OnDemandTokenResolver extends RegisteredTokenResolver
         return 'on-demand';
     }
 
+    /**
+     * Query registered listeners.
+     *
+     * @param string $eventId
+     * @param boolean|mixed $defaultResult
+     * @param array|null $data
+     * @return boolean|mixed
+     */
     protected function queryListeners($eventId, $defaultResult = false, $data = null)
     {
         $eventManager = EventManager::getInstance();
@@ -46,7 +54,7 @@ class OnDemandTokenResolver extends RegisteredTokenResolver
             array(
                 static::EVENT_TOKEN_NAME => $tokenName
             )
-        );
+        ) !== false;
     }
 
     public function getRegisteredTokenValue($tokenName)
@@ -62,6 +70,6 @@ class OnDemandTokenResolver extends RegisteredTokenResolver
 
     public function hasRegisteredTokenValues()
     {
-        return $this->queryListeners(static::EVENT_ID_HAS_REGISTERED_TOKEN_VALUES, true);
+        return $this->queryListeners(static::EVENT_ID_HAS_REGISTERED_TOKEN_VALUES, true) === true;
     }
 }
