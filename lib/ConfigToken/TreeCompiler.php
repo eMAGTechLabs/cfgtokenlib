@@ -771,30 +771,37 @@ class TreeCompiler
             $this->xrefs->add($includedXref);
             /** @var XrefTokenResolverCollection $includeTokenResolvers */
             $includeTokenResolvers = $xrefToBeResolved[$XREF_RESOLVERS_KEY];
+            if (isset($includeTokenResolvers)) {
+                $downTokenResolvers = $includeTokenResolvers;
+            } else {
+                $downTokenResolvers = new XrefTokenResolverCollection();
+            }
+            if (isset($tokenResolvers)) {
+                $downTokenResolvers->addCollection($tokenResolvers);
+            }
             $includeData = $this->recursiveCompileXref(
                 $includedXref,
-                $includeTokenResolvers,
+                $downTokenResolvers,
                 static::INCLUDE_TYPE_GROUP,
                 $this->includeMainKey,
                 $xrefPath
             );
-            if (isset($includeTokenResolvers)) {
-                $includeTokenResolvers->applyToArray($includeData);
-            }
             $this->recursiveAddData($includeData, $result);
         }
         unset($xrefPath[$xrefId]);
 
         if (isset($xrefData[$this->removeKey])) {
+            if (isset($tokenResolvers)) {
+                $tokenResolvers->applyToArray($xrefData[$this->removeKey]);
+            }
             $this->recursiveRemoveData($xrefData[$this->removeKey], $result);
         }
 
         if (isset($xrefData[$this->addKey])) {
+            if (isset($tokenResolvers)) {
+                $tokenResolvers->applyToArray($xrefData[$this->addKey]);
+            }
             $this->recursiveAddData($xrefData[$this->addKey], $result);
-        }
-
-        if (isset($tokenResolvers)) {
-            $tokenResolvers->applyToArray($includeData);
         }
 
         return $result;
