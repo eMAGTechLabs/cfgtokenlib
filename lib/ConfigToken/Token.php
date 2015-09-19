@@ -2,6 +2,7 @@
 
 namespace ConfigToken;
 
+
 use ConfigToken\TokenFilter\TokenFilterFactory;
 use ConfigToken\TokenFilter\Exception\UnknownFilterException;
 use ConfigToken\TokenResolver\Exception\OutOfScopeException;
@@ -10,8 +11,7 @@ use ConfigToken\TokenResolver\Exception\TokenFormatException;
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
 use ConfigToken\TokenResolver\TokenResolverInterface;
 
-
-class Token
+class Token implements DisposableInterface, ResolvableTokenInterface
 {
     /** @var integer[] */
     protected $offsets;
@@ -418,5 +418,19 @@ class Token
             $this->applyFilters($ignoreUnknownFilters);
         }
         return $this;
+    }
+
+    public function release()
+    {
+        $this->offsets = array();
+        $this->tokenString = null;
+        $this->tokenName = null;
+        $this->tokenValue = null;
+        $this->unfilteredTokenValue = null;
+        $this->isResolved = False;
+        $this->isFiltered = False;
+        $this->isInjected = False;
+        $this->filters = array();
+        $this->unresolvedFilters = null;
     }
 }

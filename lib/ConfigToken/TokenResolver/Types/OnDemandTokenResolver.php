@@ -6,8 +6,16 @@ namespace ConfigToken\TokenResolver\Types;
 use ConfigToken\Event;
 use ConfigToken\EventManager;
 
+/**
+ * On-demand token resolver that queries a decoupled client to provide values
+ * for the requested token names via events.
+ *
+ * @package ConfigToken\TokenResolver\Types
+ */
 class OnDemandTokenResolver extends RegisteredTokenResolver
 {
+    const TYPE = 'on-demand';
+
     const EVENT_ID_IS_TOKEN_VALUE_REGISTERED = 'is-token-value-registered';
     const EVENT_ID_GET_REGISTERED_TOKEN_VALUE = 'get-registered-token-value';
     const EVENT_ID_HAS_REGISTERED_TOKEN_VALUES = 'has-registered-token-values';
@@ -20,11 +28,11 @@ class OnDemandTokenResolver extends RegisteredTokenResolver
      */
     public static function getType()
     {
-        return 'on-demand';
+        return static::TYPE;
     }
 
     /**
-     * Query registered listeners.
+     * Dispatch an event to query the registered listeners for data.
      *
      * @param string $eventId
      * @param boolean|mixed $defaultResult
@@ -46,7 +54,13 @@ class OnDemandTokenResolver extends RegisteredTokenResolver
         return isset($event->data[Event::RESULT]) ? $event->data[Event::RESULT] : $defaultResult;
     }
 
-    public function isTokenValueRegistered($tokenName)
+    /**
+     * Check if the token value with the given name is registered.
+     *
+     * @param string $tokenName The identifier of the token value.
+     * @return boolean
+     */
+    public function hasValue($tokenName)
     {
         return $this->queryListeners(
             static::EVENT_ID_IS_TOKEN_VALUE_REGISTERED,
@@ -57,18 +71,30 @@ class OnDemandTokenResolver extends RegisteredTokenResolver
         ) !== false;
     }
 
-    public function getRegisteredTokenValue($tokenName)
+    /**
+     * Query the listeners for the token value with the given name.
+     *
+     * @param string $tokenName The name of the token value.
+     * @param string|null $default The default value to return if no value registered for given token name.
+     * @return string|null If there is no token value registered with the given name.
+     */
+    public function getValue($tokenName, $default = null)
     {
         return $this->queryListeners(
             static::EVENT_ID_GET_REGISTERED_TOKEN_VALUE,
-            false,
+            $default,
             array(
                 static::EVENT_TOKEN_NAME => $tokenName
             )
         );
     }
 
-    public function hasRegisteredTokenValues()
+    /**
+     * Query the listeners to see if they are able to provide token values.
+     *
+     * @return boolean
+     */
+    public function hasValues()
     {
         return $this->queryListeners(static::EVENT_ID_HAS_REGISTERED_TOKEN_VALUES, true) === true;
     }

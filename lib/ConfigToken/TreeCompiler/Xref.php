@@ -2,13 +2,13 @@
 
 namespace ConfigToken\TreeCompiler;
 
-use ConfigToken\TreeCompiler\XrefResolver\XrefResolverFactory;
+use ConfigToken\FileClient\FileClientInterface;
 
 
 class Xref
 {
-    /** @var string */
-    protected $type;
+    /** @var FileClientInterface */
+    protected $fileClient;
 
     /** @var string */
     protected $location;
@@ -19,60 +19,18 @@ class Xref
     /** @var array */
     protected $data;
 
+    /** @var XrefTokenResolverCollection */
+    protected $tokenResolvers;
+
     /** @var boolean */
     protected $resolved = false;
 
-
-    public function __construct($type, $location)
+    public function __construct($fileName, FileClientInterface $fileClient,
+                                XrefTokenResolverCollection $tokenResolvers = null)
     {
-        $this->setType($type);
-        $this->setLocation($location);
-    }
-
-    /**
-     * Get the type and location from the definition string.
-     *
-     * @param string $typeAndLocation
-     * @param string $delimiter
-     * @return array Type and Location.
-     * @throws \Exception
-     */
-    public static function parseDefinitionString($typeAndLocation, $delimiter)
-    {
-        $k = strpos($typeAndLocation, $delimiter);
-        if ($k === false) {
-            throw new \Exception(sprintf('Missing Xref type in "%s".', $typeAndLocation));
-        }
-        return array(substr($typeAndLocation, 0, $k), substr($typeAndLocation, $k + 1));
-    }
-
-    /**
-     * Get the id from the definition string.
-     *
-     * @param string $typeAndLocation
-     * @param string $delimiter
-     * @return string
-     * @throws \Exception
-     */
-    public static function getIdFromDefinitionString($typeAndLocation, $delimiter)
-    {
-        list($type, $location) = static::parseDefinitionString($typeAndLocation, $delimiter);
-        return static::computeId($type, $location);
-    }
-
-    /**
-     * Create Xref instance based on the given definition string.
-     *
-     * @param string $typeAndLocation
-     * @param string $delimiter
-     * @return Xref
-     * @throws \Exception
-     */
-    public static function makeFromDefinitionString($typeAndLocation, $delimiter)
-    {
-        list($type, $location) = static::parseDefinitionString($typeAndLocation, $delimiter);
-        $xref = new static($type, $location);
-        return $xref;
+        $this->setTokenResolvers($tokenResolvers);
+        $this->setLocation($fileName);
+        $this->setFileClient($fileClient);
     }
 
     public function isResolved()
@@ -87,76 +45,125 @@ class Xref
         return $this;
     }
 
-    public function getResolver()
-    {
-        return XrefResolverFactory::getByType($this->type);
-    }
-
-    public function resolve($force = false)
-    {
-        if ($this->isResolved() && (!$force)) {
-            return;
-        }
-        if (!$this->hasType()) {
-            throw new \Exception('Unable to resolve Xref without type.');
-        }
-        $resolver = $this->getResolver();
-        $resolver::resolve($this, $force);
-    }
-
-    public function hasType()
-    {
-        return isset($this->type);
-    }
-
     public function getType()
     {
-        return $this->type;
+        if (!$this->hasFileClient()) {
+            return null;
+        }
+        $this->getFileClient()->getServerType();
     }
 
-    public function setType($value)
+    public function getId()
     {
-        $this->type = $value;
+        if ($this->hasFileClient()) {
+            return $this->getFileClient()->getFileLocationHash($this->getLocation());
+        } else {
+            return md5($this->getLocation());
+        }
+    }
 
+    /**
+     * Check if the file client interface was set.
+     *
+     * @return boolean
+     */
+    public function hasFileClient()
+    {
+        return isset($this->fileClient);
+    }
+
+    /**
+     * Get the file client interface.
+     *
+     * @return FileClientInterface|null
+     */
+    public function getFileClient()
+    {
+        if (!$this->hasFileClient()) {
+            return null;
+        }
+        return $this->fileClient;
+    }
+
+    /**
+     * Set the file client interface.
+     *
+     * @param FileClientInterface $value The new value.
+     * @return $this
+     */
+    public function setFileClient($value)
+    {
+        $this->fileClient = $value;
         return $this;
     }
 
+    /**
+     * Check if the file name was set.
+     *
+     * @return boolean
+     */
     public function hasLocation()
     {
         return isset($this->location);
     }
 
+    /**
+     * Get the file name.
+     *
+     * @return string|null
+     */
     public function getLocation()
     {
+        if (!$this->hasLocation()) {
+            return null;
+        }
         return $this->location;
     }
 
-    public static function computeAbsoluteLocation($xrefType, $xrefLocation, $xrefPath)
-    {
-        $resolver = XrefResolverFactory::getByType($xrefType);
-        return $resolver::getAbsoluteLocation($xrefLocation, $xrefPath);
-    }
-
-    public static function computeId($type, $location)
-    {
-        return md5($type . $location);
-    }
-
-    public function getId()
-    {
-        return static::computeId($this->type, $this->location);
-    }
-
+    /**
+     * Set the file name.
+     *
+     * @param string $value The new value.
+     * @return $this
+     */
     public function setLocation($value)
     {
-        if (isset($value)) {
-            $resolver = $this->getResolver();
-            if (isset($resolver)) {
-                $value = $resolver->getPlatformSpecificLocation($value);
-            }
-        }
         $this->location = $value;
+        return $this;
+    }
 
+    /**
+     * Check if the token resolvers collection was set.
+     *
+     * @return boolean
+     */
+    public function hasTokenResolvers()
+    {
+        return isset($this->tokenResolvers);
+    }
+
+    /**
+     * Get the token resolvers collection.
+     *
+     * @return XrefTokenResolverCollection|null
+     */
+    public function getTokenResolvers()
+    {
+        if (!$this->hasTokenResolvers()) {
+            return null;
+        }
+        return $this->tokenResolvers;
+    }
+
+    /**
+     * Set the token resolvers collection.
+     *
+     * @param XrefTokenResolverCollection $value The new value.
+     * @return $this
+     */
+    public function setTokenResolvers($value)
+    {
+        $this->tokenResolvers = $value;
         return $this;
     }
 
@@ -196,6 +203,16 @@ class Xref
     function __toString()
     {
         return $this->getId() . ':' . $this->getType() . ':' . $this->getLocation();
+    }
+
+    public function resolve($force = false)
+    {
+        if ($this->isResolved() && (!$force)) {
+            return;
+        }
+        list($contentType, $data) = $this->getFileClient()->readFile($this->location);
+        $this->setData($data);
+        $this->setContentType($contentType);
     }
 
 

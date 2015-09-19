@@ -2,21 +2,45 @@
 
 namespace ConfigToken\TokenResolver\Types;
 
+
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
 
-
 /**
- * Resolves token values based on a given uni-dimensional associative array (token name => value).
+ * Token resolver to provide values based on a given uni-dimensional associative array (token name => value).
+ *
+ * @package ConfigToken\TokenResolver\Types
  */
 class RegisteredTokenResolver extends AbstractTokenResolver
 {
-    /** @var string[] */
-    protected $registeredTokenValues = array();
+    const TYPE = 'registered';
+    const VALUES = 'values';
 
-    public function __construct(array $registeredTokenValues = null)
+    /**
+     * Override to specify default option values.
+     *
+     * @return array
+     */
+    protected static function getDefaultOptions()
     {
-        if (isset($registeredTokenValues)) {
-            $this->setRegisteredTokenValues($registeredTokenValues);
+        return array_merge(
+            parent::getDefaultOptions(),
+            array(
+                static::VALUES => array(),
+            )
+        );
+    }
+
+    /**
+     * Create a new registered token resolver with the given known token values and options.
+     *
+     * @param array|null $values Associative array of registered token values. Null for empty.
+     * @param array|null $options Associative array of option values.
+     */
+    public function __construct(array $values = null, array $options = null)
+    {
+        parent::__construct($options);
+        if (isset($values)) {
+            $this->setValues($values);
         }
     }
 
@@ -37,7 +61,38 @@ class RegisteredTokenResolver extends AbstractTokenResolver
      */
     public static function getBaseType()
     {
-        return 'registered';
+        return static::TYPE;
+    }
+
+    /**
+     * Check if the registered token values were set and not empty.
+     *
+     * @return boolean
+     */
+    public function hasValues()
+    {
+        return count($this->getValues()) > 0;
+    }
+
+    /**
+     * Get the registered token values.
+     *
+     * @return array|null
+     */
+    public function getValues()
+    {
+        return $this->getOption(self::VALUES);
+    }
+
+    /**
+     * Set the registered token values.
+     *
+     * @param array $value The new value.
+     * @return $this
+     */
+    public function setValues($value)
+    {
+        return $this->setOption(self::VALUES, $value);
     }
 
     /**
@@ -46,91 +101,39 @@ class RegisteredTokenResolver extends AbstractTokenResolver
      * @param string $tokenName The identifier of the token value.
      * @return boolean
      */
-    public function isTokenValueRegistered($tokenName)
+    public function hasValue($tokenName)
     {
-        return isset($this->registeredTokenValues[$tokenName]);
+        $values = $this->getValues();
+        return isset($values[$tokenName]);
     }
     
     /**
      * Get the token value registered with the given name.
      *
      * @param string $tokenName The name of the token value.
+     * @param string|null $default The default value to return if no value registered for given token name.
      * @return string|null If there is no token value registered with the given name.
      */
-    public function getRegisteredTokenValue($tokenName)
+    public function getValue($tokenName, $default = null)
     {
-        if (!$this->isTokenValueRegistered($tokenName)) {
-            return null;
+        if (!$this->hasValue($tokenName)) {
+            return $default;
         }
-        return $this->registeredTokenValues[$tokenName];
-    }
-
-    /**
-     * Check if any token values are registered.
-     *
-     * @return boolean
-     */
-    public function hasRegisteredTokenValues()
-    {
-        return count($this->registeredTokenValues) > 0;
-    }
-
-    /**
-     * Get all registered token values.
-     *
-     * @return string[] With names as keys.
-     */
-    public function getRegisteredTokenValues()
-    {
-        return $this->registeredTokenValues;
-    }
-
-    /**
-     * Set all registered token values.
-     *
-     * @param string[] $tokenValues Token values with names as keys.
-     * @return $this
-     */
-    public function setRegisteredTokenValues($tokenValues)
-    {
-        $this->registeredTokenValues = $tokenValues;
-
-        return $this;
+        $values = $this->getValues();
+        return $values[$tokenName];
     }
 
     /**
      * Register a new token value.
      *
      * @param string $tokenName The name of the token value to be registered.
-     * @param string $tokenValue The token value to be registered.
+     * @param string|null $tokenValue The token value to be registered. If null, token value will be unregistered.
      * @return $this
      */
-    public function registerTokenValue($tokenName, $tokenValue)
+    public function setValue($tokenName, $tokenValue = null)
     {
-        $this->registeredTokenValues[$tokenName] = $tokenValue;
+        $this->options[static::VALUES][$tokenName] = $tokenValue;
         return $this;
-    }
-    
-    /**
-     * Un-register a token value registered with the given name.
-     *
-     * @param string $tokenName The name of the token value to be unregistered.
-     * @throws UnknownTokenException If there is no token value registered with the given name.
-     * @return string The un-registered token value.
-     */
-    public function unRegisterTokenValue($tokenName)
-    {
-        if (!$this->isTokenValueRegistered($tokenName)) {
-            throw new UnknownTokenException(
-                sprintf(
-                    'There is no token value registered with the name "%s".',
-                    $tokenName
-                )
-            );
-        }
-        $unRegisteredTokenValue = $this->registeredTokenValues[$tokenName];
-        unset($this->registeredTokenValues[$tokenName]);
-        return $unRegisteredTokenValue;
     }
 
     /**
@@ -142,17 +145,17 @@ class RegisteredTokenResolver extends AbstractTokenResolver
      * @throws UnknownTokenException If the token name was not registered and set not to ignore unknown tokens.
      * @return string|null
      */
-    public function getTokenValue($tokenName, $ignoreUnknownTokens = null, $defaultValue = Null)
+    public function getValueForToken($tokenName, $ignoreUnknownTokens = null, $defaultValue = Null)
     {
         if (is_null($ignoreUnknownTokens)) {
             $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
         }
-        if ($this->isTokenValueRegistered($tokenName)) {
-            return $this->getRegisteredTokenValue($tokenName);
+        if ($this->hasValue($tokenName)) {
+            return $this->getValue($tokenName);
         }
         if ($ignoreUnknownTokens) {
-            if (!$this->hasRegisteredTokenValues()) {
-                trigger_error('The JSON token resolver has no known values.', E_USER_WARNING);
+            if (!$this->hasValues()) {
+                trigger_error('The token resolver has no known values.', E_USER_WARNING);
             }
             return $defaultValue;
         }

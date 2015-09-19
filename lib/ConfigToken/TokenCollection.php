@@ -13,7 +13,7 @@ use ConfigToken\TokenResolver\TokenResolverInterface;
  * Generic token collection class used in conjunction with a given token resolver instance to resolve
  * tokens to values and apply the given filters.
  */
-class TokenCollection implements \IteratorAggregate
+class TokenCollection implements \IteratorAggregate, ResolvableTokensInterface
 {
     /** @var Token[] */
     protected $tokens =array ();
@@ -130,7 +130,7 @@ class TokenCollection implements \IteratorAggregate
      * @param Token $token
      * @return $this
      */
-    public function add(Token $token)
+    public function append(Token $token)
     {
         $this->tokens[$token->getTokenString()] = $token;
 
@@ -377,4 +377,8 @@ class TokenCollection implements \IteratorAggregate
         return $this;
     }
 
+    public function release()
+    {
+        $this->tokens = array();
+    }
 }

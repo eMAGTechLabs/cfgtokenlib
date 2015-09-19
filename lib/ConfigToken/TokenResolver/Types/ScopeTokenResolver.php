@@ -2,12 +2,12 @@
 
 namespace ConfigToken\TokenResolver\Types;
 
+
 use ConfigToken\TokenResolver\Exception\OutOfScopeException;
 use ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException;
 use ConfigToken\TokenResolver\Exception\TokenFormatException;
 use ConfigToken\TokenResolver\Exception\UnknownTokenException;
 use ConfigToken\TokenResolver\ScopeTokenValueSerializerInterface;
-
 
 /**
  * Class ScopeTokenResolver
@@ -41,38 +41,19 @@ use ConfigToken\TokenResolver\ScopeTokenValueSerializerInterface;
  *  )
  *  and the serializer is JsonScopeTokenValueSerializer
  *
- * @package ConfigToken\Library\TokenResolver
+ * @package ConfigToken\TokenResolver\Types
  */
 class ScopeTokenResolver extends AbstractTokenResolver
 {
-    /** @var string */
-    protected $scopeTokenName;
-
-    /** @var array */
-    protected $scope = array();
-
-    /** @var string */
-    protected $scopeTokenNameDelimiter = ':';
-
-    /** @var string */
-    protected $scopeLevelDelimiter = '.';
-
-    /** @var boolean */
-    protected $ignoreOutOfScope;
+    const TYPE = 'scope';
+    const SCOPE = 'scope';
+    const SCOPE_LEVEL_DELIMITER = 'scope-level-delimiter';
+    const SCOPE_TOKEN_NAME = 'scope-token-name';
+    const SCOPE_TOKEN_NAME_DELIMITER = 'scope-token-name-delimiter';
+    const IGNORE_OUT_OF_SCOPE = 'ignore-out-of-scope';
 
     /** @var ScopeTokenValueSerializerInterface */
     protected $serializer;
-
-
-    public function __construct($scopeTokenName = null, $scope = null, $ignoreOutOfScope = False)
-    {
-        $this->setScopeTokenName($scopeTokenName);
-        $this->setIgnoreOutOfScope($ignoreOutOfScope);
-
-        if (isset($scope)) {
-            $this->setScope($scope);
-        }
-    }
 
     /**
      * Get the token resolver type identifier.
@@ -91,140 +72,173 @@ class ScopeTokenResolver extends AbstractTokenResolver
      */
     public static function getBaseType()
     {
-        return 'scope';
+        return static::TYPE;
     }
 
     /**
-     * Check if the scope token name is set.
+     * Override to specify default option values.
      *
-     * @return boolean
+     * @return array
      */
-    public function hasScopeTokenName()
+    protected static function getDefaultOptions()
     {
-        return isset($this->scopeTokenName);
+        return array_merge(
+            parent::getDefaultOptions(),
+            array(
+                static::SCOPE_LEVEL_DELIMITER => '.',
+                static::SCOPE_TOKEN_NAME_DELIMITER => ':',
+                static::IGNORE_OUT_OF_SCOPE => false,
+            )
+        );
     }
 
     /**
-     * Set the scope token name.
+     * Initialize the token resolver with the given options.
      *
-     * @param string $value
-     * @return $this
+     * @param string|null $scopeTokenName The scope token name. Null for default (none).
+     * @param array|null $scope The array of registered scope values. Null for default (empty).
+     * @param array|null $options Associative array of option values.
+     * @param string|null $ignoreOutOfScope The ignore out of scope flag value. Null for default (false).
      */
-    public function setScopeTokenName($value)
+    public function __construct($scopeTokenName = null, array $scope = null, array $options = null,
+                                $ignoreOutOfScope = null)
     {
-        $this->scopeTokenName = $value;
-        return $this;
+        parent::__construct($options);
+
+        if (isset($scopeTokenName)) {
+            $this->setScopeTokenName($scopeTokenName);
+        }
+        if (isset($ignoreOutOfScope)) {
+            $this->setIgnoreOutOfScope($ignoreOutOfScope);
+        }
+        if (isset($scope)) {
+            $this->setScope($scope);
+        }
     }
 
     /**
-     * Get scope token name.
-     *
-     * @return string|null
-     */
-    public function getScopeTokenName()
-    {
-        return $this->scopeTokenName;
-    }
-
-    /**
-     * Check if scope was set.
+     * Check if the scope array of registered token values is not empty.
      *
      * @return boolean
      */
     public function hasScope()
     {
-        return isset($this->scope);
+        return count($this->getScope()) > 0;
     }
 
     /**
-     * Get scope.
+     * Get the scope array of registered token values.
      *
      * @return array|null
      */
     public function getScope()
     {
-        if (!$this->hasScope()) {
-            return null;
-        }
-        return $this->scope;
+        return $this->getOption(self::SCOPE);
     }
 
     /**
-     * Set scope.
+     * Set the scope array of registered token values.
      *
      * @param array $value The new value.
      * @return $this
      */
     public function setScope($value)
     {
-        $this->scope = $value;
-        return $this;
+        return $this->setOption(self::SCOPE, $value);
     }
 
     /**
-     * Get scope token name delimiter.
+     * Check if the scope token name was set.
+     *
+     * @return boolean
+     */
+    public function hasScopeTokenName()
+    {
+        return $this->hasOption(self::SCOPE_TOKEN_NAME);
+    }
+
+    /**
+     * Get the scope token name.
+     *
+     * @return string|null
+     */
+    public function getScopeTokenName()
+    {
+        return $this->getOption(self::SCOPE_TOKEN_NAME);
+    }
+
+    /**
+     * Set the scope token name.
+     *
+     * @param string $value The new value.
+     * @return $this
+     */
+    public function setScopeTokenName($value)
+    {
+        return $this->setOption(self::SCOPE_TOKEN_NAME, $value);
+    }
+
+    /**
+     * Get the scope token name delimiter.
      *
      * @return string
      */
     public function getScopeTokenNameDelimiter()
     {
-        return $this->scopeTokenNameDelimiter;
+        return $this->getOption(self::SCOPE_TOKEN_NAME_DELIMITER);
     }
 
     /**
-     * Set scope token name delimiter.
+     * Set the scope token name delimiter.
      *
      * @param string $value The new value.
      * @return $this
      */
     public function setScopeTokenNameDelimiter($value)
     {
-        $this->scopeTokenNameDelimiter = $value;
-        return $this;
+        return $this->setOption(self::SCOPE_TOKEN_NAME_DELIMITER, $value);
     }
 
     /**
-     * Get scope level delimiter.
+     * Get the scope level delimiter.
      *
      * @return string
      */
     public function getScopeLevelDelimiter()
     {
-        return $this->scopeLevelDelimiter;
+        return $this->getOption(self::SCOPE_LEVEL_DELIMITER);
     }
 
     /**
-     * Set scope level delimiter.
+     * Set the scope level delimiter.
      *
      * @param string $value The new value.
      * @return $this
      */
     public function setScopeLevelDelimiter($value)
     {
-        $this->scopeLevelDelimiter = $value;
-        return $this;
+        return $this->setOption(self::SCOPE_LEVEL_DELIMITER, $value);
     }
 
     /**
-     * Get ignore out of scope flag.
+     * Get the ignore out of scope flag.
      *
      * @return boolean
      */
     public function getIgnoreOutOfScope()
     {
-        return $this->ignoreOutOfScope;
+        return $this->getOption(self::IGNORE_OUT_OF_SCOPE);
     }
 
     /**
-     * Set ignore out of scope flag.
+     * Set the ignore out of scope flag.
      *
      * @param boolean $value The new value.
      * @return $this
      */
     public function setIgnoreOutOfScope($value)
     {
-        $this->ignoreOutOfScope = $value;
-        return $this;
+        return $this->setOption(self::IGNORE_OUT_OF_SCOPE, $value);
     }
 
     /**
@@ -275,7 +289,7 @@ class ScopeTokenResolver extends AbstractTokenResolver
         if (!$this->hasScope()) {
             throw new \Exception(sprintf('No scope was set for the %s resolver.', get_called_class()));
         }
-        $path = explode($this->scopeLevelDelimiter, $pathStr);
+        $path = explode($this->getScopeLevelDelimiter(), $pathStr);
         while (count($path) > 0) {
             $k = count($path)-1;
             if (trim($path[$k]) == '') {
@@ -284,7 +298,8 @@ class ScopeTokenResolver extends AbstractTokenResolver
                 break;
             }
         }
-        $scopePtr = &$this->scope;
+        $scope = $this->getScope();
+        $scopePtr = &$scope;
         foreach ($path as $leaf) {
             if (array_key_exists($leaf, $scopePtr)) {
                 $scopePtr = &$scopePtr[$leaf];
@@ -294,7 +309,7 @@ class ScopeTokenResolver extends AbstractTokenResolver
                         'The path "%s" is outside of the scope set for %s: %s',
                         $pathStr,
                         get_called_class(),
-                        json_encode($this->scope)
+                        json_encode($scope)
                     )
                 );
             }
@@ -308,11 +323,11 @@ class ScopeTokenResolver extends AbstractTokenResolver
      * @param string $tokenName The identifier of the token value.
      * @return boolean
      */
-    public function isTokenValueRegistered($tokenName)
+    public function hasValue($tokenName)
     {
-        $t = explode($this->scopeTokenNameDelimiter, $tokenName);
+        $t = explode($this->getScopeTokenNameDelimiter(), $tokenName);
         $token = $t[0];
-        if (($token !== $this->scopeTokenName) || (count($t) != 2) || (!$this->hasScope())) {
+        if (($token !== $this->getScopeTokenName()) || (count($t) != 2) || (!$this->hasScope())) {
             return false;
         }
         try {
@@ -342,14 +357,14 @@ class ScopeTokenResolver extends AbstractTokenResolver
      * @throws \Exception
      * @return null|string
      */
-    public function getTokenValue($tokenName, $ignoreUnknownTokens = null, $defaultValue = null)
+    public function getValueForToken($tokenName, $ignoreUnknownTokens = null, $defaultValue = null)
     {
         if (is_null($ignoreUnknownTokens)) {
             $ignoreUnknownTokens = $this->getIgnoreUnknownTokens();
         }
-        $t = explode($this->scopeTokenNameDelimiter, $tokenName);
+        $t = explode($this->getScopeTokenNameDelimiter(), $tokenName);
         $token = $t[0];
-        if ($token !== $this->scopeTokenName) {
+        if ($token !== $this->getScopeTokenName()) {
             if ($ignoreUnknownTokens) {
                 return $defaultValue;
             }
@@ -369,7 +384,7 @@ class ScopeTokenResolver extends AbstractTokenResolver
         try {
             $scopeValue = $this->getFromScopeByPath($t[1]);
         } catch (OutOfScopeException $e) {
-            if ($this->ignoreOutOfScope) {
+            if ($this->getIgnoreOutOfScope()) {
                 $scopeValue = $defaultValue;
             } else {
                 throw $e;
