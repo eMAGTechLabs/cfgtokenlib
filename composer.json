@@ -1,0 +1,31 @@
+{
+  "name": "liutec/cfgtokenlib",
+  "type": "library",
+  "description": "PHP Configuration Token Resolver and Injection Library",
+  "keywords": ["cfgtoken", "token inject"],
+  "license": "MIT",
+  "authors": [
+    {"name": "Andrei Liutec", "email": "andrei@liutec.ro"}
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.3.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0"
+  },
+  "autoload": {
+    "psr-0": { "ConfigToken\\": "lib/" }
+  },
+  "autoload-dev": {
+    "psr-0": { "ConfigToken\\Tests\\": "tests/" }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.0-dev"
+    }
+  },
+  "archive": {
+    "exclude": ["!vendor", "tests", "*phpunit.xml"]
+  }
+}
