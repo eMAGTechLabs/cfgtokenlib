@@ -3,12 +3,22 @@
 namespace ConfigToken\EventSystem;
 
 
-use ConfigToken\EventSystem\Exceptions\EventListenerNotRegisteredException;
-
-class DefaultEventDispatcher implements EventDispatcherInterface, EventSourceInterface
+class DefaultEventDispatcher implements EventDispatcherInterface
 {
-    /** @var EventListenerInterface[] */
-    protected $listeners;
+    protected $listenerManager;
+
+    function __construct(EventListenerManagerInterface $listenerManager = null)
+    {
+        if (!isset($listenerManager)) {
+            $listenerManager = static::makeEventListenerManager();
+        }
+        $this->listenerManager = $listenerManager;
+    }
+
+    public static function makeEventListenerManager()
+    {
+        return new DefaultEventListenerManager();
+    }
 
     /**
      * Get the implementation class name.
@@ -21,69 +31,27 @@ class DefaultEventDispatcher implements EventDispatcherInterface, EventSourceInt
     }
 
     /**
+     * Get the Event Listener Manager.
+     *
+     * @return EventListenerManagerInterface
+     */
+    public function getListenerManager()
+    {
+        return $this->listenerManager;
+    }
+
+    /**
      * Dispatch the given event to all registered listeners.
      *
      * @param EventInterface $event
      */
     public function dispatchEvent(EventInterface $event)
     {
-        foreach ($this->listeners as $listener) {
+        $listeners = $this->getListenerManager()->getRegisteredListeners();
+        foreach ($listeners as $listener) {
             if (!$listener->handleEvent($event)) {
                 break;
             }
         }
-    }
-
-    /**
-     * Register an event listener.
-     *
-     * @param EventListenerInterface $listener The event listener.
-     */
-    public function registerListener(EventListenerInterface $listener)
-    {
-        $this->listeners[spl_object_hash($listener)] = $listener;
-    }
-
-    /**
-     * Un-register an event listener.
-     *
-     * @param EventListenerInterface $listener The event listener.
-     * @throws EventListenerNotRegisteredException
-     */
-    public function removeListener(EventListenerInterface $listener)
-    {
-        if (!$this->isListenerRegistered($listener)) {
-            throw new EventListenerNotRegisteredException();
-        }
-        unset($this->listeners[spl_object_hash($listener)]);
-    }
-
-    /**
-     * Un-register all event listeners
-     */
-    public function removeAllListeners()
-    {
-        $this->listeners = array();
-    }
-
-    /**
-     * Check if the given event listener is registered.
-     *
-     * @param EventListenerInterface $listener
-     * @return boolean
-     */
-    public function isListenerRegistered(EventListenerInterface $listener)
-    {
-        return isset($this->listeners[spl_object_hash($listener)]);
-    }
-
-    /**
-     * Check if any event listeners are registered.
-     *
-     * @return boolean
-     */
-    public function hasRegisteredListeners()
-    {
-        return count($this->listeners) > 0;
     }
 }

@@ -5,8 +5,9 @@ namespace ConfigToken\EventSystem;
 
 use ConfigToken\EventSystem\Exceptions\EventListenerNotRegisteredException;
 
-interface EventSourceInterface
+interface EventListenerManagerInterface
 {
+
     /**
      * Register an event listener.
      *
@@ -34,4 +35,18 @@ interface EventSourceInterface
      * @return boolean
      */
     public function isListenerRegistered(EventListenerInterface $listener);
+
+    /**
+     * Check if any event listeners are registered.
+     *
+     * @return boolean
+     */
+    public function hasRegisteredListeners();
+
+    /**
+     * Get an array of all registered listeners.
+     *
+     * @return EventListenerInterface[]
+     */
+    public function getRegisteredListeners();
 }

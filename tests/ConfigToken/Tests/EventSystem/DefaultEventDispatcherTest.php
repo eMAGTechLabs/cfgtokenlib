@@ -17,24 +17,24 @@ class DefaultEventDispatcherTest extends \PHPUnit_Framework_TestCase
 
         /** @var DefaultEventDispatcher $dispatcher */
         $listener1 = new CustomEventListener();
-        $this->assertFalse($dispatcher->hasRegisteredListeners());
-        $dispatcher->registerListener($listener1);
-        $this->assertTrue($dispatcher->hasRegisteredListeners());
+        $this->assertFalse($dispatcher->getListenerManager()->hasRegisteredListeners());
+        $dispatcher->getListenerManager()->registerListener($listener1);
+        $this->assertTrue($dispatcher->getListenerManager()->hasRegisteredListeners());
         $event1 = new SimpleEvent('e1');
         $dispatcher->dispatchEvent($event1);
         $receivedEvent = $listener1->popEvent();
         $this->assertEquals($event1, $receivedEvent);
         $this->assertEquals('e1', $receivedEvent->getEventId());
         $listener2 = new CustomEventListener();
-        $dispatcher->registerListener($listener2);
+        $dispatcher->getListenerManager()->registerListener($listener2);
         $dispatcher->dispatchEvent($event1);
         $this->assertEquals($event1, $listener1->popEvent());
         $this->assertEquals($event1, $listener2->popEvent());
-        $dispatcher->removeListener($listener1);
+        $dispatcher->getListenerManager()->removeListener($listener1);
         $dispatcher->dispatchEvent($event1);
         $this->assertNull($listener1->popEvent());
         $this->assertEquals($event1, $listener2->popEvent());
-        $dispatcher->registerListener($listener1);
+        $dispatcher->getListenerManager()->registerListener($listener1);
         $dispatcher->dispatchEvent($event1);
         $listener1->popEvent();
         $this->assertNull($listener1->popEvent());
@@ -43,7 +43,7 @@ class DefaultEventDispatcherTest extends \PHPUnit_Framework_TestCase
         $dispatcher->dispatchEvent($event1);
         $this->assertEquals($event1, $listener2->popEvent());
         $this->assertNull($listener1->popEvent());
-        $dispatcher->removeAllListeners();
+        $dispatcher->getListenerManager()->removeAllListeners();
         $this->assertNull($listener1->popEvent());
         $this->assertNull($listener2->popEvent());
     }
@@ -55,6 +55,6 @@ class DefaultEventDispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $dispatcher = new DefaultEventDispatcher();
         $listener = new CustomEventListener();
-        $dispatcher->removeListener($listener);
+        $dispatcher->getListenerManager()->removeListener($listener);
     }
 }

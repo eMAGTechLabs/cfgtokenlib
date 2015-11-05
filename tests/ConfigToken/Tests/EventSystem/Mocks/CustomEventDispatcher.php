@@ -3,8 +3,10 @@
 namespace ConfigToken\Tests\EventSystem\Mocks;
 
 
+use ConfigToken\EventSystem\DefaultEventListenerManager;
 use ConfigToken\EventSystem\EventDispatcherInterface;
 use ConfigToken\EventSystem\EventInterface;
+use ConfigToken\EventSystem\EventListenerManagerInterface;
 
 class CustomEventDispatcher implements EventDispatcherInterface
 {
@@ -18,13 +20,18 @@ class CustomEventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * Check if any event listeners are registered.
+     * Get the Event Listener Manager.
      *
-     * @return boolean
+     * @return EventListenerManagerInterface
      */
-    public function hasRegisteredListeners()
+    public function getListenerManager()
     {
-        return true;
+        static $listenerManager;
+        if (!isset($listenerManager)) {
+            $listenerManager = new DefaultEventListenerManager();
+        }
+        return $listenerManager;
     }
+
 
 }
