@@ -25,6 +25,11 @@ class UrlXrefResolver extends AbstractXrefResolver
      *
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
+     * @throws UnknownXrefTypeException
+     * @throws XrefResolverFetchException
+     * @throws \ConfigToken\TreeCompiler\XrefResolver\Exception\InvalidXrefTypeException
+     * @throws \ConfigToken\TreeSerializer\Exception\UnknownContentTypeException
+     * @throws \ConfigToken\TreeSerializer\Exception\UnknownFileExtensionException
      */
     public static function resolve(Xref $xref, $force = false)
     {
@@ -41,7 +46,7 @@ class UrlXrefResolver extends AbstractXrefResolver
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_HEADER, true);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $data = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -58,10 +63,12 @@ class UrlXrefResolver extends AbstractXrefResolver
             $fileExtension = pathinfo($path, PATHINFO_EXTENSION);
             if (!TreeSerializerFactory::isRegisteredByFileExtension($fileExtension)) {
                 throw new UnknownXrefTypeException(
-                    'Unable to find resolver for Xref content type "%s" or file extension "%s" for location "%s".',
-                    $contentType,
-                    $fileExtension,
-                    $xref->getLocation()
+                    sprintf(
+                        'Unable to find resolver for Xref content type "%s" or file extension "%s" for location "%s".',
+                        $contentType,
+                        $fileExtension,
+                        $xref->getLocation()
+                    )
                 );
             }
             $serializer = TreeSerializerFactory::getByFileExtension($fileExtension);
