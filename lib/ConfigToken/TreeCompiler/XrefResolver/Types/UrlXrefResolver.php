@@ -43,13 +43,15 @@ class UrlXrefResolver extends AbstractXrefResolver
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_URL, $xref->getLocation());
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        curl_setopt($ch, CURLOPT_HEADER, false);
         $data = curl_exec($ch);
+
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
         curl_close($ch);
 
         if ($httpCode != 200) {
