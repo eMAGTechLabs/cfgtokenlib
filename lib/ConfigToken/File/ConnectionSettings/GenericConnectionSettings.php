@@ -55,7 +55,7 @@ class GenericConnectionSettings extends Options implements ConnectionSettingsInt
         if (!isset($eventDispatcher)) {
             $eventDispatcher = EventDispatcherFactory::getDispatcher(static::EVENT_DISPATCHER_ID);
         }
-        if (!$eventDispatcher->hasRegisteredListeners()) {
+        if (!$eventDispatcher->getListenerManager()->hasRegisteredListeners()) {
             return false;
         }
         $keys = $this->getRequiredOrOptionalKeys();

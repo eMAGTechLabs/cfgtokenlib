@@ -147,6 +147,7 @@ class HttpFileClient extends LocalFileClient
         $request->setOption(CURLOPT_RETURNTRANSFER, 1);
 
         $response = $request->execute();
+
         return $response;
     }
 }
