@@ -472,18 +472,6 @@ class TreeCompiler
             }
             if ($hasValues) {
                 $values = $tokenResolverInfo[$this->xrefTokenResolverValuesKey];
-                if (!is_array($values)) {
-                    throw new TokenResolverDefinitionException(
-                        sprintf(
-                            'The "%s" key must be an associative array for token resolver definition at ' .
-                            'index %d for Xref key "%s".',
-                            $this->xrefTokenResolverValuesKey,
-                            $tokenResolverDefinitionIndex,
-                            $xrefKey
-                        )
-                    );
-                }
-                $resolverValues[$tokenResolverKey] = $values;
             } else { // has values xref
                 $xrefInfo = $tokenResolverInfo[$this->xrefTokenResolverValuesXrefKey];
                 $xref = $this->parseXrefInfo(
@@ -492,8 +480,21 @@ class TreeCompiler
                     $tokenResolvers,
                     $xrefPath
                 );
-                $resolverValues[$tokenResolverKey] = $xref;
+                // pass down current token resolvers
+                $values = $this->recursiveCompileXref($xref, $tokenResolvers, null, null, $xrefPath);
             }
+            if (!is_array($values)) {
+                throw new TokenResolverDefinitionException(
+                    sprintf(
+                        'The "%s" key must be an associative array for token resolver definition at ' .
+                        'index %d for Xref key "%s".',
+                        $this->xrefTokenResolverValuesKey,
+                        $tokenResolverDefinitionIndex,
+                        $xrefKey
+                    )
+                );
+            }
+            $resolverValues[$tokenResolverKey] = $values;
             $tokenResolverDefinitionIndex++;
         }
 
@@ -508,11 +509,7 @@ class TreeCompiler
             $tokenResolver = TokenResolverFactory::get($tokenResolverInfo[$this->xrefTokenResolverTypeKey]);
             $xrefTokenResolver = new XrefTokenResolver($tokenResolver);
             $values = $resolverValues[$tokenResolverKey];
-            if ($values instanceof Xref) {
-                $xrefTokenResolver->setXref($values);
-            } else {
-                $xrefTokenResolver->setRegisteredTokenValues($values);
-            }
+            $xrefTokenResolver->setRegisteredTokenValues($values);
             if (isset($options)) {
                 if (isset($options[$this->xrefTokenResolverOptionIgnoreUnknownTokensKey])) {
                     $tokenResolver->setIgnoreUnknownTokens($options[$this->xrefTokenResolverOptionIgnoreUnknownTokensKey]);
