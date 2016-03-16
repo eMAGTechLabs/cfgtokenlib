@@ -133,7 +133,7 @@ class ScopeTokenResolver extends AbstractTokenResolver
      */
     public function hasScope()
     {
-        return isset($this->scope);
+        return isset($this->scope) && (count($this->scope) > 0);
     }
 
     /**
@@ -369,10 +369,12 @@ class ScopeTokenResolver extends AbstractTokenResolver
         try {
             $scopeValue = $this->getFromScopeByPath($t[1]);
         } catch (OutOfScopeException $e) {
-            if ($this->ignoreOutOfScope) {
-                $scopeValue = $defaultValue;
-            } else {
+            $scopeValue = $defaultValue;
+            if (!$this->ignoreOutOfScope) {
                 throw $e;
+            }
+            if (!$this->ignoreUnknownTokens) {
+                throw new UnknownTokenException($tokenName);
             }
         }
 
