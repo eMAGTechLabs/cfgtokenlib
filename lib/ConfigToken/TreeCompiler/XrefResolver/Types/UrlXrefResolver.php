@@ -2,6 +2,8 @@
 
 namespace ConfigToken\TreeCompiler\XrefResolver\Types;
 
+use ConfigToken\Event;
+use ConfigToken\EventManager;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefTypeException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFetchException;
 use ConfigToken\TreeCompiler\Xref;
@@ -10,6 +12,9 @@ use ConfigToken\TreeSerializer\TreeSerializerFactory;
 
 class UrlXrefResolver extends AbstractXrefResolver
 {
+    const EVENT_ID_RESOLVE_URL = 'resolve-url';
+    const EVENT_XREF = 'xref';
+
     /**
      * Get the resolver type identifier string.
      *
@@ -39,6 +44,28 @@ class UrlXrefResolver extends AbstractXrefResolver
         static::matchType($xref);
         if (!$xref->hasLocation()) {
             throw new XrefResolverFetchException($xref);
+        }
+        $eventManager = EventManager::getInstance();
+        if ($eventManager->hasListeners()) {
+            $event = new Event(self::EVENT_ID_RESOLVE_URL);
+            $event->data[self::EVENT_XREF] = $xref;
+            $event->data[Event::RESULT] = false;
+            $eventManager->dispatch($event);
+            unset($event->data[self::EVENT_XREF]);
+            if (isset($event->data[Event::RESULT])) {
+                if ($event->data[Event::RESULT] === true) {
+                    return;
+                }
+                if ($event->data[Event::RESULT] !== false) {
+                    throw new XrefResolverFetchException(
+                        $xref,
+                        sprintf(
+                            'Got error message from listener: %s',
+                            $event->data[Event::RESULT]
+                        )
+                    );
+                }
+            }
         }
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
