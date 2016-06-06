@@ -209,11 +209,9 @@ result.json
           - &lt;file path&gt;: the path to a local file; either absolute (/) or relative to the current file (./).
         - _url_: url external reference;
           - &lt;url&gt;: the URL to a HTTP accessible remote file. If the response Content-Type does not match a known XrefResolver then the file extension in the URL path will be used to determine the appropriate de-serializer.
-        - _git_: git external reference
-          - &lt;git file&gt;: git@&lt;host>:/&lt;group>/&lt;repo>.git:&lt;branch&gt;:&lt;file path&gt;
-          - &lt;git file url&gt;: [http|https]://&lt;host&gt;/&lt;group&gt;/&lt;repo&gt;.git:&lt;branch&gt;:<file path&gt;
+        - _inline_: inline data having the same structure schema.
         - _&lt;custom&gt;_: custom external reference handling class registered with **XrefResolverFactory**;
-      - **src**: required. The string describing the location of the xref formatted according to _type_ (see above);
+      - **src**: required if type not inline. The string describing the location of the xref formatted according to _type_ (see above);
       - **resolve**: optional. Ordered list of resolver settings. This key describes the token resolvers and the values used to replace the tokens in the structure fetched from the external reference. If more than one, the resolvers will be used in the given order.
         - _&lt;unnamed resolver settings&gt;_: required. Associative array describing the configuration of the token resolvers.
           - **type**: required. String. The type identifying the token resolver's class. Possible values are:

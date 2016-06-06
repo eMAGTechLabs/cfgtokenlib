@@ -3,6 +3,7 @@
 namespace ConfigToken\TreeCompiler\XrefResolver;
 
 use ConfigToken\Exception\AlreadyRegisteredException;
+use ConfigToken\TreeCompiler\XrefResolver\Types\InlineXrefResolver;
 use ConfigToken\TreeCompiler\XrefResolver\Types\UrlXrefResolver;
 use ConfigToken\TreeCompiler\XrefResolver\Types\LocalFileXrefResolver;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefTypeException;
@@ -23,6 +24,7 @@ class XrefResolverFactory
         }
         static::internalRegister(new UrlXrefResolver());
         static::internalRegister(new LocalFileXrefResolver());
+        static::internalRegister(new InlineXrefResolver());
     }
 
     /**

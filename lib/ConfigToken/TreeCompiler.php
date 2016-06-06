@@ -11,6 +11,7 @@ use ConfigToken\TreeCompiler\Exception\TreeCompilerFormatException;
 use ConfigToken\TreeCompiler\Exceptions\CircularReferenceException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFormatException;
+use ConfigToken\TreeCompiler\XrefResolver\Types\InlineXrefResolver;
 use ConfigToken\TreeCompiler\XrefResolver\Types\UrlXrefResolver;
 use ConfigToken\TreeCompiler\XrefResolver\Types\LocalFileXrefResolver;
 use ConfigToken\TreeCompiler\Xref;
@@ -30,6 +31,8 @@ class TreeCompiler
     protected $includeXrefTypeKey = 'type';
     /** @var string */
     protected $includeXrefLocationKey = 'src';
+    /** @var string */
+    protected $includeXrefDataKey = 'data';
     /** @var string */
     protected $includeXrefResolversKey = 'resolve';
     /** @var string */
@@ -344,6 +347,7 @@ class TreeCompiler
      */
     protected function parseXrefInfo($xrefKey, $xrefInfo, XrefTokenResolverCollection $xrefTokenResolvers = null, $xrefPath)
     {
+        $xrefData = null;
         if (gettype($xrefInfo) == 'string') {
             list($xrefType, $xrefLocation) = Xref::parseDefinitionString($xrefInfo, $this->xrefTypeAndLocationDelimiter);
         } else {
@@ -359,34 +363,52 @@ class TreeCompiler
                 );
             }
 
-            $requiredKeys = array($this->includeXrefTypeKey, $this->includeXrefLocationKey);
-            foreach ($requiredKeys as $requiredKey) {
-                if (!isset($xrefInfo[$requiredKey])) {
+            $requiredKeyErrorMessage = 'The "%s" key is missing from the Xref definition with the key "%s".';
+            if (!isset($xrefInfo[$this->includeXrefTypeKey])) {
+                throw new TreeCompilerFormatException(
+                    sprintf($requiredKeyErrorMessage, $this->includeXrefTypeKey, $xrefKey)
+                );
+            }
+            $xrefType = $xrefInfo[$this->includeXrefTypeKey];
+            if ($xrefType == InlineXrefResolver::getType()) {
+                if (!isset($xrefInfo[$this->includeXrefDataKey])) {
                     throw new TreeCompilerFormatException(
-                        sprintf(
-                            'The "%s" key is missing from the Xref definition with the key "%s".',
-                            $requiredKey,
-                            $xrefKey
-                        )
+                        sprintf($requiredKeyErrorMessage, $this->includeXrefDataKey, $xrefKey)
                     );
                 }
+                $xrefData = $xrefInfo[$this->includeXrefDataKey];
+                $xrefLocation = Xref::computeId($xrefType, serialize($xrefData));
+            } else {
+                if (!isset($xrefInfo[$this->includeXrefLocationKey])) {
+                    throw new TreeCompilerFormatException(
+                        sprintf($requiredKeyErrorMessage, $this->includeXrefLocationKey, $xrefKey)
+                    );
+                }
+                $xrefLocation = $xrefInfo[$this->includeXrefLocationKey];
             }
-
-            $xrefType = $xrefInfo[$this->includeXrefTypeKey];
-            $xrefLocation = $xrefInfo[$this->includeXrefLocationKey];
         }
 
-        if (isset($xrefTokenResolvers)) {
-            $xrefLocation = $xrefTokenResolvers->applyToString($xrefLocation);
+        if (isset($xrefData)) {
+            if (isset($xrefTokenResolvers)) {
+                $xrefTokenResolvers->applyToArray($xrefData);
+            }
+        } else {
+            if (isset($xrefTokenResolvers)) {
+                $xrefLocation = $xrefTokenResolvers->applyToString($xrefLocation);
+            }
+            $xrefLocation = Xref::computeAbsoluteLocation($xrefType, $xrefLocation, $xrefPath);
         }
-        $xrefLocation = Xref::computeAbsoluteLocation($xrefType, $xrefLocation, $xrefPath);
 
         $xrefId = Xref::computeId($xrefType, $xrefLocation);
         if ($this->xrefs->hasById($xrefId)) {
             return $this->xrefs[$xrefId];
         }
 
-        return new Xref($xrefType, $xrefLocation);
+        $xref = new Xref($xrefType, $xrefLocation);
+        if (isset($xrefData)) {
+            $xref->setData($xrefData)->setResolved(true);
+        }
+        return $xref;
     }
 
     /**
