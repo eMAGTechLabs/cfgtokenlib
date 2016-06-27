@@ -82,7 +82,7 @@ class TokenParser
      */
     public static function getTokenRegexByDelimiters($prefix, $suffix)
     {
-        return sprintf('/%s+(.*?)%s/', preg_quote($prefix), preg_quote($suffix));
+        return sprintf('/%1$s([^%1$s%2$s]*)%2$s/', preg_quote($prefix), preg_quote($suffix));
     }
 
     /**
