@@ -21,7 +21,7 @@ class TokenParserTest extends \PHPUnit_Framework_TestCase
         $tokens = $tokenParser->parseString($jsonData);
         $this->assertTrue($tokens->isEmpty());
         $this->assertEquals('~', $tokenParser->getFilterDelimiter());
-        $this->assertEquals('/\{\{+(.*?)\}\}/', $tokenParser->getTokenRegex());
+        $this->assertEquals('/\{\{+([^\{\{\}\}]*)\}\}/', $tokenParser->getTokenRegex());
     }
 
     public function testSimpleTokenParser()
