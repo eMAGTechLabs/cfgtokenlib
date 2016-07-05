@@ -16,12 +16,10 @@ php:
   - hhvm
 
 before_script:
-  - sh -c 'if [[ "$TRAVIS_PHP_VERSION" == "5.3.3" ]]; then composer config --global disable-tls true; else composer config --global disable-tls false; fi;'
-  - composer --prefer-source install
+  - ./travis/before_script.sh
 
 script:
-  - mkdir -p build/logs
-  - php vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+  - ./travis/script.sh
 
 after_script:
-  - sh -c 'if [[ "$TRAVIS_PHP_VERSION" != "7.0" && "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml; fi;'
+  - ./travis/after_script.sh
