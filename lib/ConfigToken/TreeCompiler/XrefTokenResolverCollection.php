@@ -15,13 +15,13 @@ class XrefTokenResolverCollection
     /** @var XrefTokenResolver[] */
     protected $collection = array();
 
-    protected static $_KEY = 0;
-    protected static $_KEY_TOKENS = 1;
-    protected static $_KEY_REF = 2;
-    protected static $_VALUE = 3;
-    protected static $_VALUE_TOKENS = 4;
-    protected static $_VALUE_REF = 5;
-    protected static $_LEVEL = 6;
+    const _KEY = 0;
+    const _KEY_TOKENS = 1;
+    const _KEY_REF = 2;
+    const _VALUE = 3;
+    const _VALUE_TOKENS = 4;
+    const _VALUE_REF = 5;
+    const _LEVEL = 6;
 
     public function add(XrefTokenResolver $xrefTokenResolver)
     {
@@ -85,22 +85,22 @@ class XrefTokenResolverCollection
             if (gettype($key) == 'string') {
                 $tokens = $parser->parseString($key);
                 if (!$tokens->isEmpty()) {
-                    $t[self::$_KEY] = $key;
-                    $t[self::$_KEY_TOKENS] = $tokens;
-                    $t[self::$_KEY_REF] = &$array;
+                    $t[self::_KEY] = $key;
+                    $t[self::_KEY_TOKENS] = $tokens;
+                    $t[self::_KEY_REF] = &$array;
                 }
             }
             $valueType = gettype($value);
             if ($valueType == 'string') {
                 $tokens = $parser->parseString($value);
                 if (!$tokens->isEmpty()) {
-                    $t[self::$_VALUE] = $value;
-                    $t[self::$_VALUE_TOKENS] = $tokens;
-                    $t[self::$_VALUE_REF] = &$value;
+                    $t[self::_VALUE] = $value;
+                    $t[self::_VALUE_TOKENS] = $tokens;
+                    $t[self::_VALUE_REF] = &$value;
                 }
             }
             if (count($t) > 0) {
-                $t[self::$_LEVEL] = $level;
+                $t[self::_LEVEL] = $level;
                 $result[] = $t;
                 unset($t);
             }
@@ -111,7 +111,7 @@ class XrefTokenResolverCollection
         unset($value);
         if ($level == 0) {
             usort($result, function($a, $b) {
-               return $b[XrefTokenResolverCollection::$_LEVEL] - $a[XrefTokenResolverCollection::$_LEVEL];
+               return $b[XrefTokenResolverCollection::_LEVEL] - $a[XrefTokenResolverCollection::_LEVEL];
             });
         }
     }
@@ -134,34 +134,34 @@ class XrefTokenResolverCollection
             $lookup = array();
             $this->getTokensFromArray($array, $tokenParser, $lookup);
             foreach ($lookup as $record) {
-                if (isset($record[self::$_VALUE_TOKENS])) {
-                    $this->resolveTokens($record[self::$_VALUE_TOKENS], $xrefTokenResolver);
+                if (isset($record[self::_VALUE_TOKENS])) {
+                    $this->resolveTokens($record[self::_VALUE_TOKENS], $xrefTokenResolver);
                 }
-                if (isset($record[self::$_KEY_TOKENS])) {
-                    $this->resolveTokens($record[self::$_KEY_TOKENS], $xrefTokenResolver);
+                if (isset($record[self::_KEY_TOKENS])) {
+                    $this->resolveTokens($record[self::_KEY_TOKENS], $xrefTokenResolver);
                 }
             }
             foreach ($lookup as &$record) {
-                if (isset($record[self::$_VALUE])) {
+                if (isset($record[self::_VALUE])) {
                     $newValue = TokenInjector::injectString(
-                        $record[self::$_VALUE],
-                        $record[self::$_VALUE_TOKENS]
+                        $record[self::_VALUE],
+                        $record[self::_VALUE_TOKENS]
                     );
-                    $record[self::$_VALUE_REF] = $newValue;
-                    unset($record[self::$_VALUE_TOKENS]);
-                    unset($record[self::$_VALUE_REF]);
+                    $record[self::_VALUE_REF] = $newValue;
+                    unset($record[self::_VALUE_TOKENS]);
+                    unset($record[self::_VALUE_REF]);
                 }
-                if (isset($record[self::$_KEY])) {
-                    $oldKey = $record[self::$_KEY];
+                if (isset($record[self::_KEY])) {
+                    $oldKey = $record[self::_KEY];
                     $newKey = TokenInjector::injectString(
                         $oldKey,
-                        $record[self::$_KEY_TOKENS]
+                        $record[self::_KEY_TOKENS]
                     );
-                    unset($record[self::$_KEY_TOKENS]);
+                    unset($record[self::_KEY_TOKENS]);
                     if ($oldKey != $newKey) {
-                        $record[self::$_KEY_REF][$newKey] = $record[self::$_KEY_REF][$oldKey];
-                        unset($record[self::$_KEY_REF][$oldKey]);
-                        unset($record[self::$_KEY_REF]);
+                        $record[self::_KEY_REF][$newKey] = $record[self::_KEY_REF][$oldKey];
+                        unset($record[self::_KEY_REF][$oldKey]);
+                        unset($record[self::_KEY_REF]);
                     }
                 }
             }
