@@ -21,6 +21,7 @@ class XrefTokenResolverCollection
     protected static $_VALUE = 3;
     protected static $_VALUE_TOKENS = 4;
     protected static $_VALUE_REF = 5;
+    protected static $_LEVEL = 6;
 
     public function add(XrefTokenResolver $xrefTokenResolver)
     {
@@ -77,7 +78,7 @@ class XrefTokenResolverCollection
         $xrefTokenResolver->resolve($tokens);
     }
 
-    protected function getTokensFromArray(&$array, TokenParser $parser, &$result)
+    protected function getTokensFromArray(&$array, TokenParser $parser, &$result, $level=0)
     {
         foreach ($array as $key => &$value) {
             $t = array();
@@ -99,14 +100,20 @@ class XrefTokenResolverCollection
                 }
             }
             if (count($t) > 0) {
+                $t[self::$_LEVEL] = $level;
                 $result[] = $t;
                 unset($t);
             }
             if ($valueType == 'array') {
-                $this->getTokensFromArray($value, $parser, $result);
+                $this->getTokensFromArray($value, $parser, $result, $level + 1);
             }
         }
         unset($value);
+        if ($level == 0) {
+            usort($result, function($a, $b) {
+               return $b[XrefTokenResolverCollection::$_LEVEL] - $a[XrefTokenResolverCollection::$_LEVEL];
+            });
+        }
     }
 
     public function applyToString($string)

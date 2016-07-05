@@ -301,6 +301,11 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
             array(
                 'content' => 'dep1.json',
                 'dep1version' => '{{version}}',
+                '{{version}}' => array(
+                    '{{version}}' => array(
+                        'test' => '{{version}}',
+                    ),
+                ),
             )
         )->setResolved(true);
 
@@ -388,6 +393,11 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             'content' => 'dep2.json',
             'dep1version' => 1,
+            '1' => array(
+                '1' => array(
+                    'test' => '1',
+                ),
+            ),
             'dep2version' => 2,
         );
 
