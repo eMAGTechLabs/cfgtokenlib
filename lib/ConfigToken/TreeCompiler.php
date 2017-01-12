@@ -8,7 +8,7 @@ use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
 use ConfigToken\TokenResolver\Types\ScopeTokenResolver;
 use ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException;
 use ConfigToken\TreeCompiler\Exception\TreeCompilerFormatException;
-use ConfigToken\TreeCompiler\Exceptions\CircularReferenceException;
+use ConfigToken\TreeCompiler\Exception\CircularReferenceException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFormatException;
 use ConfigToken\TreeCompiler\XrefResolver\Types\InlineXrefResolver;
