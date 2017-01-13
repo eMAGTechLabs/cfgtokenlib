@@ -1,6 +1,6 @@
 <?php
 
-namespace ConfigToken\TreeCompiler\Exceptions;
+namespace ConfigToken\TreeCompiler\Exception;
 
 
 class XrefNotFoundException extends \Exception
