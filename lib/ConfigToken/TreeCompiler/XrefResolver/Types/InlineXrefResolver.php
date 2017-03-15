@@ -3,6 +3,7 @@
 namespace ConfigToken\TreeCompiler\XrefResolver\Types;
 
 
+use ConfigToken\LoggerInterface;
 use ConfigToken\TreeCompiler\Xref;
 
 class InlineXrefResolver extends AbstractXrefResolver
@@ -22,9 +23,10 @@ class InlineXrefResolver extends AbstractXrefResolver
      *
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
+     * @param LoggerInterface|null $logger
      * @throws \Exception
      */
-    public static function resolve(Xref $xref, $force = false)
+    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null)
     {
         $xref->setResolved(true);
     }

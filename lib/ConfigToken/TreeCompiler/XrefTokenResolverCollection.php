@@ -3,6 +3,7 @@
 namespace ConfigToken\TreeCompiler;
 
 
+use ConfigToken\LoggerInterface;
 use ConfigToken\TokenCollection;
 use ConfigToken\TokenInjector;
 use ConfigToken\TokenParser;
@@ -43,8 +44,21 @@ class XrefTokenResolverCollection
         $this->collection = array_merge($xrefTokenResolverCollection->collection, $this->collection);
     }
 
-    protected function resolveTokens(TokenCollection $tokens, XrefTokenResolver $xrefTokenResolver)
+    protected function resolveTokens(TokenCollection $tokens, XrefTokenResolver $xrefTokenResolver, 
+                                     LoggerInterface $logger=null)
     {
+        if (isset($logger)) {
+            $message = sprintf(
+                'Applying token resolver #%d from \'%s\'',
+                $xrefTokenResolver->getSourceXrefPosition(),
+                $xrefTokenResolver->getSourceXrefLocation(),
+                $xrefTokenResolver->getIgnoreUnknownFilters()
+            );
+            if (!$xrefTokenResolver->getTokenResolver()->getIgnoreUnknownTokens()) {
+                $message .= '. WARNING! Unknown tokens will not be ignored!';
+            }
+            $logger->addRecord(LoggerInterface::DEBUG, $message);
+        }
         if (!$xrefTokenResolver->hasTokenResolver()) {
             throw new \Exception('No token resolver found for Xref token resolver.');
         }
@@ -75,7 +89,7 @@ class XrefTokenResolverCollection
                 $tokenResolver->setScope($values);
             }
         }
-        $xrefTokenResolver->resolve($tokens);
+        $xrefTokenResolver->resolve($tokens, $logger);
     }
 
     protected function getTokensFromArray(&$array, TokenParser $parser, &$result, $level=0)
@@ -116,18 +130,18 @@ class XrefTokenResolverCollection
         }
     }
 
-    public function applyToString($string)
+    public function applyToString($string, LoggerInterface $logger=null)
     {
         foreach ($this->collection as $xrefTokenResolver) {
             $tokenParser = $xrefTokenResolver->getTokenParser();
             $tokens = $tokenParser->parseString($string);
-            $this->resolveTokens($tokens, $xrefTokenResolver);
+            $this->resolveTokens($tokens, $xrefTokenResolver, $logger);
             $string = TokenInjector::injectString($string, $tokens);
         }
         return $string;
     }
 
-    public function applyToArray(&$array)
+    public function applyToArray(&$array, LoggerInterface $logger=null)
     {
         foreach ($this->collection as $xrefTokenResolver) {
             $tokenParser = $xrefTokenResolver->getTokenParser();
@@ -135,10 +149,10 @@ class XrefTokenResolverCollection
             $this->getTokensFromArray($array, $tokenParser, $lookup);
             foreach ($lookup as $record) {
                 if (isset($record[self::_VALUE_TOKENS])) {
-                    $this->resolveTokens($record[self::_VALUE_TOKENS], $xrefTokenResolver);
+                    $this->resolveTokens($record[self::_VALUE_TOKENS], $xrefTokenResolver, $logger);
                 }
                 if (isset($record[self::_KEY_TOKENS])) {
-                    $this->resolveTokens($record[self::_KEY_TOKENS], $xrefTokenResolver);
+                    $this->resolveTokens($record[self::_KEY_TOKENS], $xrefTokenResolver, $logger);
                 }
             }
             foreach ($lookup as &$record) {

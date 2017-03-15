@@ -2,6 +2,7 @@
 
 namespace ConfigToken\TreeCompiler\XrefResolver\Types;
 
+use ConfigToken\LoggerInterface;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFetchException;
 use ConfigToken\TreeCompiler\Xref;
 use ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException;
@@ -96,9 +97,10 @@ class LocalFileXrefResolver extends AbstractXrefResolver
      *
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
+     * @param LoggerInterface|null $logger
      * @throws XrefResolverFetchException
      */
-    public static function resolve(Xref $xref, $force = false)
+    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null)
     {
         if ($xref->isResolved() && (!$force)) {
             return;
