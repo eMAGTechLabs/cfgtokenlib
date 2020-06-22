@@ -1,6 +1,6 @@
 # ConfigToken Library
 
-[![Build Status](https://travis-ci.org/liutec/cfgtokenlib.png?branch=master)](https://travis-ci.org/liutec/cfgtokenlib) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib) [![Code Coverage](https://scrutinizer-ci.com/g/liutec/cfgtokenlib/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/liutec/cfgtokenlib)
+[![Build Status](https://travis-ci.org/eMAGTechLabs/cfgtokenlib.svg?branch=master)](https://travis-ci.org/eMAGTechLabs/cfgtokenlib) [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/eMAGTechLabs/cfgtokenlib/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/eMAGTechLabs/cfgtokenlib) [![Code Coverage](https://scrutinizer-ci.com/g/eMAGTechLabs/cfgtokenlib/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/eMAGTechLabs/cfgtokenlib)
 
 The ConfigToken library provides the following classes to aid in token parsing, value formatting and injection:
 - **TokenParser**: configurable string parser class used to extract a collection of tokens.

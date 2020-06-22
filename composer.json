@@ -5,7 +5,8 @@
     "keywords": ["cfgtoken", "token inject"],
     "license": "MIT",
     "authors": [
-        {"name": "Andrei Liutec", "email": "andrei@liutec.ro"}
+        {"name": "Andrei Liutec", "email": "andrei@liutec.ro"},
+        {"name": "EmagTechLabs Admin", "email": "techlabs@emag.ro"}
     ],
     "minimum-stability": "dev",
     "require": {
