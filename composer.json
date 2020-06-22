@@ -1,11 +1,12 @@
 {
-    "name": "liutec/cfgtokenlib",
+    "name": "emag-tech-labs/config-tokens-resolver",
     "type": "library",
     "description": "PHP Configuration Token Resolver and Injection Library",
     "keywords": ["cfgtoken", "token inject"],
     "license": "MIT",
     "authors": [
-        {"name": "Andrei Liutec", "email": "andrei@liutec.ro"}
+        {"name": "Andrei Liutec", "email": "andrei@liutec.ro"},
+        {"name": "EmagTechLabs Admin", "email": "techlabs@emag.ro"}
     ],
     "minimum-stability": "dev",
     "require": {
