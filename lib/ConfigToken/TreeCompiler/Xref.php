@@ -2,6 +2,7 @@
 
 namespace ConfigToken\TreeCompiler;
 
+use ConfigToken\LoggerInterface;
 use ConfigToken\TreeCompiler\XrefResolver\XrefResolverFactory;
 
 
@@ -92,7 +93,7 @@ class Xref
         return XrefResolverFactory::getByType($this->type);
     }
 
-    public function resolve($force = false)
+    public function resolve($force = false, LoggerInterface $logger=null)
     {
         if ($this->isResolved() && (!$force)) {
             return;
@@ -101,7 +102,7 @@ class Xref
             throw new \Exception('Unable to resolve Xref without type.');
         }
         $resolver = $this->getResolver();
-        $resolver::resolve($this, $force);
+        $resolver::resolve($this, $force, $logger);
     }
 
     public function hasType()

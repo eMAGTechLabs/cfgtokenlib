@@ -341,11 +341,14 @@ class TreeCompiler
      * @param string|array $xrefInfo
      * @param XrefTokenResolverCollection $xrefTokenResolvers
      * @param Xref[] $xrefPath
+     * @param Xref $currentXref
+     * @param LoggerInterface|null $logger
      * @return Xref|mixed
      * @throws TreeCompilerFormatException
      * @throws \Exception
      */
-    protected function parseXrefInfo($xrefKey, $xrefInfo, XrefTokenResolverCollection $xrefTokenResolvers = null, $xrefPath)
+    protected function parseXrefInfo($xrefKey, $xrefInfo, XrefTokenResolverCollection $xrefTokenResolvers = null,
+                                     $xrefPath, Xref $currentXref, LoggerInterface $logger=null)
     {
         $xrefData = null;
         if (gettype($xrefInfo) == 'string') {
@@ -390,11 +393,33 @@ class TreeCompiler
 
         if (isset($xrefData)) {
             if (isset($xrefTokenResolvers)) {
-                $xrefTokenResolvers->applyToArray($xrefData);
+                $xrefTokenResolvers->applyToArray($xrefData, $logger);
             }
         } else {
             if (isset($xrefTokenResolvers)) {
-                $xrefLocation = $xrefTokenResolvers->applyToString($xrefLocation);
+                if (isset($logger)) {
+                    $logger->addRecord(
+                        LoggerInterface::DEBUG,
+                        sprintf(
+                            'Resolving tokens in xref location "%s" included by "%s"',
+                            $xrefLocation,
+                            $currentXref->getLocation()
+                        )
+                    );
+                }
+                $newXrefLocation = $xrefTokenResolvers->applyToString($xrefLocation, $logger);
+                if (isset($logger)) {
+                    $logger->addRecord(
+                        LoggerInterface::DEBUG,
+                        sprintf(
+                            'Xref location "%s" changed to "%s"',
+                            $xrefLocation,
+                            $newXrefLocation,
+                            $currentXref->getLocation()
+                        )
+                    );
+                }
+                $xrefLocation = $newXrefLocation;
             }
             $xrefLocation = Xref::computeAbsoluteLocation($xrefType, $xrefLocation, $xrefPath);
         }
@@ -418,10 +443,14 @@ class TreeCompiler
      * @param array $tokenResolversInfo
      * @param XrefTokenResolverCollection $tokenResolvers
      * @param Xref[] $xrefPath
+     * @param Xref $currentXref
+     * @param LoggerInterface|null $logger
      * @return XrefTokenResolverCollection
      * @throws \Exception
      */
-    protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo, XrefTokenResolverCollection $tokenResolvers = null, $xrefPath)
+    protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo,
+                                                         XrefTokenResolverCollection $tokenResolvers=null, $xrefPath,
+                                                         Xref $currentXref, LoggerInterface $logger=null)
     {
         $resolverValues = array();
         $tokenResolverDefinitionIndex = 0;
@@ -500,10 +529,12 @@ class TreeCompiler
                     sprintf('%s.%s[%d]', $xrefKey, $this->includeXrefResolversKey, $tokenResolverDefinitionIndex),
                     $xrefInfo,
                     $tokenResolvers,
-                    $xrefPath
+                    $xrefPath,
+                    $currentXref,
+                    $logger
                 );
                 // pass down current token resolvers
-                $values = $this->recursiveCompileXref($xref, $tokenResolvers, null, null, $xrefPath);
+                $values = $this->recursiveCompileXref($xref, $tokenResolvers, null, null, $xrefPath, $logger);
             }
             if (!is_array($values)) {
                 throw new TokenResolverDefinitionException(
@@ -521,6 +552,7 @@ class TreeCompiler
         }
 
         $result = new XrefTokenResolverCollection();
+        $tokenResolverPosition = 0;
         // parse
         foreach ($tokenResolversInfo as $tokenResolverKey => $tokenResolverInfo) {
             if (isset($tokenResolverInfo[$this->xrefTokenResolverOptionsKey])) {
@@ -530,6 +562,10 @@ class TreeCompiler
             }
             $tokenResolver = TokenResolverFactory::get($tokenResolverInfo[$this->xrefTokenResolverTypeKey]);
             $xrefTokenResolver = new XrefTokenResolver($tokenResolver);
+            $xrefTokenResolver
+                ->setSourceXrefLocation($currentXref->getLocation())
+                ->setSourceXrefPosition($tokenResolverPosition++)
+            ;
             $values = $resolverValues[$tokenResolverKey];
             $xrefTokenResolver->setRegisteredTokenValues($values);
             if (isset($options)) {
@@ -580,6 +616,7 @@ class TreeCompiler
      * @param string|null $includeType
      * @param string|array|null $includeTypeValue
      * @param array $xrefPath
+     * @param LoggerInterface|null $logger
      * @return array
      *
      * @throws CircularReferenceException
@@ -590,13 +627,18 @@ class TreeCompiler
      * @throws \Exception
      */
     protected function recursiveCompileXref(Xref $xref, XrefTokenResolverCollection $tokenResolvers = null,
-                                            $includeType = null, $includeTypeValue = null, &$xrefPath)
+                                            $includeType = null, $includeTypeValue = null, &$xrefPath, 
+                                            LoggerInterface $logger=null)
     {
         static $XREF_KEY = 0;
         static $XREF_RESOLVERS_KEY = 1;
-
+        
         if (!isset($includeType)) {
             $includeType = static::INCLUDE_TYPE_GROUP;
+        }
+        
+        if (isset($logger)) {
+            $logger->addRecord(LoggerInterface::DEBUG, sprintf('Compiling %s', $xref->getLocation()));
         }
 
         switch ($includeType) {
@@ -627,7 +669,7 @@ class TreeCompiler
         }
         $mustIncludeSpecificGroup = $includeTypeValue != $this->includeMainKey;
 
-        $xref->resolve();
+        $xref->resolve(false, $logger);
 
         $xrefData = $xref->getData();
         if (empty($xrefData)) {
@@ -663,7 +705,7 @@ class TreeCompiler
                             $result = $xrefData;
                         }
                         if (isset($tokenResolvers)) {
-                            $tokenResolvers->applyToArray($result);
+                            $tokenResolvers->applyToArray($result, $logger);
                         }
                         return $result;
                     }
@@ -704,7 +746,7 @@ class TreeCompiler
                             $result = $xrefData;
                         }
                         if (isset($tokenResolvers)) {
-                            $tokenResolvers->applyToArray($result);
+                            $tokenResolvers->applyToArray($result, $logger);
                         }
                         return $result;
                     }
@@ -753,7 +795,9 @@ class TreeCompiler
                 $xrefKey,
                 $xrefInfo,
                 $tokenResolvers,
-                $xrefPath
+                $xrefPath,
+                $xref,
+                $logger
             );
 
             if (is_array($xrefInfo) && isset($xrefInfo[$this->includeXrefResolversKey])) {
@@ -761,7 +805,8 @@ class TreeCompiler
                     $xrefKey,
                     $xrefInfo[$this->includeXrefResolversKey],
                     $tokenResolvers,
-                    $xrefPath
+                    $xrefPath,
+                    $xref
                 );
             } else {
                 $xrefTokenResolvers = null;
@@ -803,7 +848,8 @@ class TreeCompiler
                 $downTokenResolvers,
                 static::INCLUDE_TYPE_GROUP,
                 $this->includeMainKey,
-                $xrefPath
+                $xrefPath,
+                $logger
             );
             $this->recursiveAddData($includeData, $result);
         }
@@ -811,14 +857,34 @@ class TreeCompiler
 
         if (isset($xrefData[$this->removeKey])) {
             if (isset($tokenResolvers)) {
-                $tokenResolvers->applyToArray($xrefData[$this->removeKey]);
+                if (isset($logger)) {
+                    $logger->addRecord(
+                        LoggerInterface::DEBUG,
+                        sprintf(
+                            'Applying token resolvers to "%s" key in "%s"',
+                            $this->removeKey,
+                            $xref->getLocation()
+                        )    
+                    );
+                }
+                $tokenResolvers->applyToArray($xrefData[$this->removeKey], $logger);
             }
             $this->recursiveRemoveData($xrefData[$this->removeKey], $result);
         }
 
         if (isset($xrefData[$this->addKey])) {
             if (isset($tokenResolvers)) {
-                $tokenResolvers->applyToArray($xrefData[$this->addKey]);
+                if (isset($logger)) {
+                    $logger->addRecord(
+                        LoggerInterface::DEBUG,
+                        sprintf(
+                            'Applying token resolvers to "%s" key in "%s"',
+                            $this->addKey,
+                            $xref->getLocation()
+                        )
+                    );
+                }
+                $tokenResolvers->applyToArray($xrefData[$this->addKey], $logger);
             }
             $this->recursiveAddData($xrefData[$this->addKey], $result);
         }
@@ -826,23 +892,23 @@ class TreeCompiler
         return $result;
     }
 
-    public function compileXref(Xref $xref, $includeType = null, $includeTypeValue = null)
+    public function compileXref(Xref $xref, $includeType = null, $includeTypeValue = null, LoggerInterface $logger=null)
     {
         $xrefPath = array();
-        $compiledData = $this->recursiveCompileXref($xref, null, $includeType, $includeTypeValue, $xrefPath);
+        $compiledData = $this->recursiveCompileXref($xref, null, $includeType, $includeTypeValue, $xrefPath, $logger);
         return $compiledData;
     }
 
-    public function compileLocalFile($inputFileName, $includeType = null, $includeKeyValue = null)
+    public function compileLocalFile($inputFileName, $includeType = null, $includeKeyValue = null, LoggerInterface $logger=null)
     {
         $xref = new Xref(LocalFileXrefResolver::getType(), $inputFileName);
-        return $this->compileXref($xref, $includeType, $includeKeyValue);
+        return $this->compileXref($xref, $includeType, $includeKeyValue, $logger);
     }
 
-    public function compileUrl($inputUrl, $includeType = null, $includeKeyValue = null)
+    public function compileUrl($inputUrl, $includeType = null, $includeKeyValue = null, LoggerInterface $logger=null)
     {
         $xref = new Xref(UrlXrefResolver::getType(), $inputUrl);
-        return $this->compileXref($xref, $includeType, $includeKeyValue);
+        return $this->compileXref($xref, $includeType, $includeKeyValue, $logger);
     }
 
     public function save(array $tree, $fileName)

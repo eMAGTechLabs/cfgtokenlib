@@ -4,6 +4,7 @@ namespace ConfigToken\TreeCompiler\XrefResolver\Types;
 
 use ConfigToken\Event;
 use ConfigToken\EventManager;
+use ConfigToken\LoggerInterface;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\UnknownXrefTypeException;
 use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFetchException;
 use ConfigToken\TreeCompiler\Xref;
@@ -32,13 +33,14 @@ class UrlXrefResolver extends AbstractXrefResolver
      *
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
+     * @param LoggerInterface|null $logger
      * @throws UnknownXrefTypeException
      * @throws XrefResolverFetchException
      * @throws \ConfigToken\TreeCompiler\XrefResolver\Exception\InvalidXrefTypeException
      * @throws \ConfigToken\TreeSerializer\Exception\UnknownContentTypeException
      * @throws \ConfigToken\TreeSerializer\Exception\UnknownFileExtensionException
      */
-    public static function resolve(Xref $xref, $force = false)
+    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null)
     {
         if ($xref->isResolved() && (!$force)) {
             return;

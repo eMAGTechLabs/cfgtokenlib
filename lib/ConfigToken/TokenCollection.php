@@ -342,6 +342,7 @@ class TokenCollection implements \IteratorAggregate
      * @param TokenResolverInterface $tokenResolver
      * @param boolean|null $ignoreUnknownTokens Null to use token resolver option.
      * @param boolean|null $ignoreUnknownFilters Null to use collection option.
+     * @param LoggerInterface|null $logger
      * @throws UnknownFilterException
      *
      * If using RegisteredTokenResolver:
@@ -355,7 +356,7 @@ class TokenCollection implements \IteratorAggregate
      * @return $this
      */
     public function resolve(TokenResolverInterface $tokenResolver,
-                            $ignoreUnknownTokens = null, $ignoreUnknownFilters = null)
+                            $ignoreUnknownTokens = null, $ignoreUnknownFilters = null, LoggerInterface $logger=null)
     {
         if (is_null($ignoreUnknownTokens)) {
             $ignoreUnknownTokens = $tokenResolver->getIgnoreUnknownTokens();

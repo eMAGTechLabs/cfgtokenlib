@@ -2,6 +2,7 @@
 
 namespace ConfigToken\TreeCompiler\XrefResolver;
 
+use ConfigToken\LoggerInterface;
 use ConfigToken\TreeCompiler\Xref;
 
 
@@ -36,6 +37,7 @@ interface XrefResolverInterface
      *
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
+     * @param LoggerInterface|null $logger
      */
-    public static function resolve(Xref $xref, $force = false);
+    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null);
 }
