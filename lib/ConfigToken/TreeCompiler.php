@@ -71,6 +71,8 @@ class TreeCompiler
     protected $xrefTokenResolverRequiredOptionKeys = array();
     /** @var string[] */
     protected $xrefTokenResolverOptionSetterMapping = array();
+    /** @var array $headers */
+    protected $headers = array();
 
     /** @var string */
     protected $removeKey = 'remove';
@@ -85,8 +87,9 @@ class TreeCompiler
     const INCLUDE_TYPE_GROUP = 'group';
     const INCLUDE_TYPE_XREF = 'xref';
 
-    public function __construct(XrefCollection $xrefs = null)
+    public function __construct(XrefCollection $xrefs = null, $headers=array())
     {
+        $this->headers = $headers;
         if (!isset($xrefs)) {
             $xrefs = new XrefCollection();
         }
@@ -669,7 +672,7 @@ class TreeCompiler
         }
         $mustIncludeSpecificGroup = $includeTypeValue != $this->includeMainKey;
 
-        $xref->resolve(false, $logger);
+        $xref->resolve(false, $logger, $this->headers);
 
         $xrefData = $xref->getData();
         if (empty($xrefData)) {

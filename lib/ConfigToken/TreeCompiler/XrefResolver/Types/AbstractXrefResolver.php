@@ -39,9 +39,10 @@ abstract class AbstractXrefResolver implements XrefResolverInterface
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
      * @param LoggerInterface|null $logger
+     * @param array $headers
      * @throws \Exception
      */
-    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null)
+    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null, $headers=array())
     {
         throw new \Exception(
             sprintf(

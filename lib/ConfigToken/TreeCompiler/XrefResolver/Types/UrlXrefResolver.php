@@ -34,13 +34,14 @@ class UrlXrefResolver extends AbstractXrefResolver
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
      * @param LoggerInterface|null $logger
+     * @param array $headers
      * @throws UnknownXrefTypeException
      * @throws XrefResolverFetchException
      * @throws \ConfigToken\TreeCompiler\XrefResolver\Exception\InvalidXrefTypeException
      * @throws \ConfigToken\TreeSerializer\Exception\UnknownContentTypeException
      * @throws \ConfigToken\TreeSerializer\Exception\UnknownFileExtensionException
      */
-    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null)
+    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null, $headers=array())
     {
         if ($xref->isResolved() && (!$force)) {
             return;
@@ -82,6 +83,7 @@ class UrlXrefResolver extends AbstractXrefResolver
             curl_setopt($ch, CURLOPT_TIMEOUT, 60);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             $data = curl_exec($ch);
 
             $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);

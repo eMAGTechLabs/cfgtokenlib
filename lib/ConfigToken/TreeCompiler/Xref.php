@@ -93,7 +93,7 @@ class Xref
         return XrefResolverFactory::getByType($this->type);
     }
 
-    public function resolve($force = false, LoggerInterface $logger=null)
+    public function resolve($force = false, LoggerInterface $logger=null, $headers=array())
     {
         if ($this->isResolved() && (!$force)) {
             return;
@@ -102,7 +102,7 @@ class Xref
             throw new \Exception('Unable to resolve Xref without type.');
         }
         $resolver = $this->getResolver();
-        $resolver::resolve($this, $force, $logger);
+        $resolver::resolve($this, $force, $logger, $headers);
     }
 
     public function hasType()

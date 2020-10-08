@@ -97,10 +97,11 @@ class LocalFileXrefResolver extends AbstractXrefResolver
      *
      * @param Xref $xref
      * @param boolean $force If true and Xref already fetched, force the resolver to fetch the data again.
+     * @param array $headers
      * @param LoggerInterface|null $logger
      * @throws XrefResolverFetchException
      */
-    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null)
+    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null, $headers=array())
     {
         if ($xref->isResolved() && (!$force)) {
             return;
