@@ -15,10 +15,11 @@ class TokenInjector
      * @param string $string The string where to inject the resolved token values.
      * @param TokenCollection $tokens The tokens.
      * @param boolean $checkHash If true, the hash of the string must match the source hash of the tokens.
+     * @param LoggerInterface|null $logger
      * @throws UnknownTokenSourceException
      * @return string
      */
-    public static function injectString($string, TokenCollection $tokens, $checkHash = False) {
+    public static function injectString($string, TokenCollection $tokens, $checkHash = False, LoggerInterface $logger=null) {
         if ($checkHash) {
             $hash = md5($string);
             if ($tokens->hasSourceHash() && ($tokens->getSourceHash() !== $hash)) {
@@ -52,6 +53,15 @@ class TokenInjector
                     $blocks[] = $tokenValue;
                     $lastOffset = $offset + strlen($tokenString);
                     $offsetDelta += strlen($tokenValue) - strlen($tokenString);
+                    if (isset($logger) && (!isset($injected[$tokenString]))) {
+                        $logger->addRecord(
+                            LoggerInterface::DEBUG,
+                            sprintf(
+                                'Replaced token "%s" with value "%s".',
+                                $token
+                            )
+                        );
+                    }
                     $injected[$tokenString] = $token;
                 }
             }
