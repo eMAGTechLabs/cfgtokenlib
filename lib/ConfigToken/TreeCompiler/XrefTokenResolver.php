@@ -2,6 +2,7 @@
 
 namespace ConfigToken\TreeCompiler;
 
+use ConfigToken\LoggerInterface;
 use ConfigToken\TokenCollection;
 use ConfigToken\TokenParser;
 use ConfigToken\TokenResolver\TokenResolverInterface;
@@ -27,10 +28,78 @@ class XrefTokenResolver
     protected $tokenFilterDelimiter;
     /** @var TokenParser */
     protected $tokenParser;
+    /** @var string */
+    protected $sourceXrefLocation;
+    /** @var integer */
+    protected $sourceXrefPosition;
 
     public function __construct(TokenResolverInterface $tokenResolver = null)
     {
         $this->setTokenResolver($tokenResolver);
+    }
+
+    /**
+     * Check if the source Xref location was set.
+     *
+     * @return boolean
+     */
+    public function hasSourceXrefLocation()
+    {
+        return isset($this->sourceXrefLocation);
+    }
+
+    /**
+     * Get the source Xref location.
+     *
+     * @return string|null
+     */
+    public function getSourceXrefLocation()
+    {
+        return $this->sourceXrefLocation;
+    }
+
+    /**
+     * Set the source Xref location.
+     *
+     * @param string $value The new value.
+     * @return $this
+     */
+    public function setSourceXrefLocation($value)
+    {
+        $this->sourceXrefLocation = $value;
+        return $this;
+    }
+
+    /**
+     * Check if the source Xref position of this token resolver was set.
+     *
+     * @return boolean
+     */
+    public function hasSourceXrefPosition()
+    {
+        return isset($this->sourceXrefPosition);
+    }
+
+    /**
+     * Get the source Xref position of this token resolver.
+     *
+     * @return integer|null
+     */
+    public function getSourceXrefPosition()
+    {
+        return $this->sourceXrefPosition;
+    }
+
+    /**
+     * Set the source Xref position of this token resolver.
+     *
+     * @param integer $value The new value.
+     * @return $this
+     */
+    public function setSourceXrefPosition($value)
+    {
+        $this->sourceXrefPosition = $value;
+        return $this;
     }
 
     /**
@@ -343,9 +412,9 @@ class XrefTokenResolver
         return $this->tokenParser;
     }
 
-    public function resolve(TokenCollection $tokens)
+    public function resolve(TokenCollection $tokens, LoggerInterface $logger=null)
     {
-        $tokens->resolve($this->tokenResolver, null, $this->ignoreUnknownFilters);
+        $tokens->resolve($this->tokenResolver, null, $this->ignoreUnknownFilters, $logger);
         return $this;
     }
 }
