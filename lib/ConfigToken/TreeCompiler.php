@@ -630,7 +630,7 @@ class TreeCompiler
      * @throws \Exception
      */
     protected function recursiveCompileXref(Xref $xref, XrefTokenResolverCollection $tokenResolvers = null,
-                                            $includeType = null, $includeTypeValue = null, &$xrefPath, 
+                                            $includeType = null, $includeTypeValue = null, &$xrefPath = null, 
                                             LoggerInterface $logger=null)
     {
         static $XREF_KEY = 0;
