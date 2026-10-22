@@ -45,7 +45,7 @@ class XrefTokenResolverCollection
     }
 
     protected function resolveTokens(TokenCollection $tokens, XrefTokenResolver $xrefTokenResolver, 
-                                     LoggerInterface $logger=null)
+                                     ?LoggerInterface $logger=null)
     {
         if (isset($logger)) {
             $message = sprintf(
@@ -130,7 +130,7 @@ class XrefTokenResolverCollection
         }
     }
 
-    public function applyToString($string, LoggerInterface $logger=null)
+    public function applyToString($string, ?LoggerInterface $logger=null)
     {
         foreach ($this->collection as $xrefTokenResolver) {
             $tokenParser = $xrefTokenResolver->getTokenParser();
@@ -141,7 +141,7 @@ class XrefTokenResolverCollection
         return $string;
     }
 
-    public function applyToArray(&$array, LoggerInterface $logger=null)
+    public function applyToArray(&$array, ?LoggerInterface $logger=null)
     {
         foreach ($this->collection as $xrefTokenResolver) {
             $tokenParser = $xrefTokenResolver->getTokenParser();

@@ -5,7 +5,7 @@ namespace ConfigToken\TokenResolver\Exception;
 
 class UnknownTokenException extends \Exception
 {
-    public function __construct($tokenName = "", $scope = "", $code = 0, \Exception $previous = null)
+    public function __construct($tokenName = "", $scope = "", $code = 0, ?\Exception $previous = null)
     {
         if ($scope == "") {
             $message = sprintf('Unknown token "%s".', $tokenName);

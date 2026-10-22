@@ -6,37 +6,34 @@ use ConfigToken\TreeSerializer\Types\XmlTreeSerializer;
 use ConfigToken\TreeSerializer\Types\YmlTreeSerializer;
 
 
-class NotImplementedTreeSerializerTest extends \PHPUnit_Framework_TestCase
+class NotImplementedTreeSerializerTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @expectedException \Exception
-     */
+
     public function testXmlSerializeNotImplementedException()
     {
+        $this->expectException(\Exception::class);
+
         XmlTreeSerializer::serialize(array());
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testXmlDeserializeNotImplementedException()
     {
+        $this->expectException(\Exception::class);
+
         XmlTreeSerializer::deserialize('');
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testYmlSerializeNotImplementedException()
     {
+        $this->expectException(\Exception::class);
+
         YmlTreeSerializer::serialize(array());
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testYmlDeserializeNotImplementedException()
     {
+        $this->expectException(\Exception::class);
+
         YmlTreeSerializer::deserialize('');
     }
 }

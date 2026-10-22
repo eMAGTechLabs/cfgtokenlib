@@ -16,7 +16,7 @@ abstract class AbstractFileClient implements FileClientInterface
     /**
      * @param ConnectionSettingsInterface|null $connectionSettings
      */
-    public function __construct(ConnectionSettingsInterface $connectionSettings = null)
+    public function __construct(?ConnectionSettingsInterface $connectionSettings = null)
     {
         if (!isset($connectionSettings)) {
             $connectionSettings = new GenericConnectionSettings();

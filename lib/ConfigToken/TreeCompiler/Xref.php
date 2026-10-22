@@ -93,7 +93,7 @@ class Xref
         return XrefResolverFactory::getByType($this->type);
     }
 
-    public function resolve($force = false, LoggerInterface $logger=null, $headers=array())
+    public function resolve($force = false, ?LoggerInterface $logger=null, $headers=array())
     {
         if ($this->isResolved() && (!$force)) {
             return;

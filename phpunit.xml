@@ -10,7 +10,6 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         syntaxCheck="false"
          bootstrap="./tests/ConfigToken/Tests/TestsInit.php"
 >
 
@@ -26,9 +25,9 @@
         </exclude>
     </groups>
 
-    <filter>
-        <whitelist>
+    <coverage>
+        <include>
             <directory>./lib/ConfigToken/</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </coverage>
 </phpunit>

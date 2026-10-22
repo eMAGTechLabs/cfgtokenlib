@@ -5,7 +5,7 @@ namespace ConfigToken\Tests\TreeSerializer\Types;
 use ConfigToken\TreeSerializer\Types\PhpTreeSerializer;
 
 
-class PhpTreeSerializerTest extends \PHPUnit_Framework_TestCase
+class PhpTreeSerializerTest extends \PHPUnit\Framework\TestCase
 {
     const FORMAT = "<?php\n\n\$data = %s;";
     /**
@@ -28,20 +28,18 @@ class PhpTreeSerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data, $deserialized);
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException
-     */
     public function testDeserializeException()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException::class);
+
         $malformed = '<?php print "test"';
         PhpTreeSerializer::deserialize($malformed);
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException
-     */
     public function testDeserializeBraceException()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException::class);
+
         $malformed = '<?php }';
         PhpTreeSerializer::deserialize($malformed);
     }

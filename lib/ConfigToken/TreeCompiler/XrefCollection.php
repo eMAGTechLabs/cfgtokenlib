@@ -16,18 +16,19 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
     }
 
     /**
-     * (PHP 8 &gt;= 8.3.0)<br/>
+     * (PHP 5 &gt;= 5.0.0)<br/>
      * Retrieve an external iterator
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return \Traversable An instance of an object implementing <b>Iterator</b> or <b>Traversable</b>
      */
-    public function getIterator(): \Traversable
+    #[\ReturnTypeWillChange]
+    public function getIterator()
     {
         return new \ArrayIterator($this->collection);
     }
 
     /**
-     * (PHP 8 &gt;= 8.3.0)<br/>
+     * (PHP 5 &gt;= 5.0.0)<br/>
      * Whether a offset exists
      * @link http://php.net/manual/en/arrayaccess.offsetexists.php
      * @param mixed $offset <p>
@@ -38,13 +39,14 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
      * <p>
      * The return value will be casted to boolean if non-boolean was returned.
      */
-    public function offsetExists($offset): bool
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset)
     {
         return $this->hasById($offset);
     }
 
     /**
-     * (PHP 8 &gt;= 8.3.0)<br/>
+     * (PHP 5 &gt;= 5.0.0)<br/>
      * Offset to retrieve
      * @link http://php.net/manual/en/arrayaccess.offsetget.php
      * @param mixed $offset <p>
@@ -52,13 +54,14 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
      * </p>
      * @return mixed Can return all value types.
      */
-    public function offsetGet($offset): mixed
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
     {
         return $this->getById($offset);
     }
 
     /**
-     * (PHP 8 &gt;= 8.3.0)<br/>
+     * (PHP 5 &gt;= 5.0.0)<br/>
      * Offset to set
      * @link http://php.net/manual/en/arrayaccess.offsetset.php
      * @param mixed $offset <p>
@@ -70,7 +73,8 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
      * @return void
      * @throws \Exception
      */
-    public function offsetSet($offset, $value): void
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value)
     {
         if (!$value instanceof Xref) {
             throw new \Exception('Value is not an Xref.');
@@ -83,7 +87,7 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
     }
 
     /**
-     * (PHP 8 &gt;= 8.3.0)<br/>
+     * (PHP 5 &gt;= 5.0.0)<br/>
      * Offset to unset
      * @link http://php.net/manual/en/arrayaccess.offsetunset.php
      * @param mixed $offset <p>
@@ -91,7 +95,8 @@ class XrefCollection implements \IteratorAggregate, \ArrayAccess
      * </p>
      * @return void
      */
-    public function offsetUnset($offset): void
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset)
     {
         if (!isset($offset)) {
             return;

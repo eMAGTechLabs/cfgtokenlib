@@ -5,7 +5,7 @@ namespace ConfigToken\Tests\TreeSerializer\Types;
 use ConfigToken\TreeSerializer\Types\IniTreeSerializer;
 
 
-class IniTreeSerializerTest extends \PHPUnit_Framework_TestCase
+class IniTreeSerializerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider iniDataProvider
@@ -25,11 +25,10 @@ class IniTreeSerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $data);
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException
-     */
     public function testDeserializeNamespaceException()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException::class);
+
         $serialized = array(
             '[a]',
             'b=1',
@@ -40,11 +39,10 @@ class IniTreeSerializerTest extends \PHPUnit_Framework_TestCase
         IniTreeSerializer::deserialize(implode("\n", $serialized));
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException
-     */
     public function testDeserializeSyntaxException()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException::class);
+
         $serialized = array(
             '{a}',
             'b=1',
@@ -52,11 +50,10 @@ class IniTreeSerializerTest extends \PHPUnit_Framework_TestCase
         IniTreeSerializer::deserialize(implode("\n", $serialized));
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException
-     */
     public function testDeserializeException()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException::class);
+
         $serialized = array(
             'false',
         );

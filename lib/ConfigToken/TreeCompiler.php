@@ -87,7 +87,7 @@ class TreeCompiler
     const INCLUDE_TYPE_GROUP = 'group';
     const INCLUDE_TYPE_XREF = 'xref';
 
-    public function __construct(XrefCollection $xrefs = null, $headers=array())
+    public function __construct(?XrefCollection $xrefs = null, $headers=array())
     {
         $this->headers = $headers;
         if (!isset($xrefs)) {
@@ -350,8 +350,8 @@ class TreeCompiler
      * @throws TreeCompilerFormatException
      * @throws \Exception
      */
-    protected function parseXrefInfo($xrefKey, $xrefInfo, XrefTokenResolverCollection $xrefTokenResolvers = null,
-                                     $xrefPath, Xref $currentXref, LoggerInterface $logger=null)
+    protected function parseXrefInfo($xrefKey, $xrefInfo, ?XrefTokenResolverCollection $xrefTokenResolvers,
+                                     $xrefPath, Xref $currentXref, ?LoggerInterface $logger=null)
     {
         $xrefData = null;
         if (gettype($xrefInfo) == 'string') {
@@ -452,8 +452,8 @@ class TreeCompiler
      * @throws \Exception
      */
     protected function parseXrefTokenResolverDefinitions($xrefKey, $tokenResolversInfo,
-                                                         XrefTokenResolverCollection $tokenResolvers=null, $xrefPath,
-                                                         Xref $currentXref, LoggerInterface $logger=null)
+                                                         ?XrefTokenResolverCollection $tokenResolvers, $xrefPath,
+                                                         Xref $currentXref, ?LoggerInterface $logger=null)
     {
         $resolverValues = array();
         $tokenResolverDefinitionIndex = 0;
@@ -629,9 +629,9 @@ class TreeCompiler
      * @throws XrefResolverFormatException
      * @throws \Exception
      */
-    protected function recursiveCompileXref(Xref $xref, XrefTokenResolverCollection $tokenResolvers = null,
+    protected function recursiveCompileXref(Xref $xref, ?XrefTokenResolverCollection $tokenResolvers = null,
                                             $includeType = null, $includeTypeValue = null, &$xrefPath = null, 
-                                            LoggerInterface $logger=null)
+                                            ?LoggerInterface $logger=null)
     {
         static $XREF_KEY = 0;
         static $XREF_RESOLVERS_KEY = 1;
@@ -895,20 +895,20 @@ class TreeCompiler
         return $result;
     }
 
-    public function compileXref(Xref $xref, $includeType = null, $includeTypeValue = null, LoggerInterface $logger=null)
+    public function compileXref(Xref $xref, $includeType = null, $includeTypeValue = null, ?LoggerInterface $logger=null)
     {
         $xrefPath = array();
         $compiledData = $this->recursiveCompileXref($xref, null, $includeType, $includeTypeValue, $xrefPath, $logger);
         return $compiledData;
     }
 
-    public function compileLocalFile($inputFileName, $includeType = null, $includeKeyValue = null, LoggerInterface $logger=null)
+    public function compileLocalFile($inputFileName, $includeType = null, $includeKeyValue = null, ?LoggerInterface $logger=null)
     {
         $xref = new Xref(LocalFileXrefResolver::getType(), $inputFileName);
         return $this->compileXref($xref, $includeType, $includeKeyValue, $logger);
     }
 
-    public function compileUrl($inputUrl, $includeType = null, $includeKeyValue = null, LoggerInterface $logger=null)
+    public function compileUrl($inputUrl, $includeType = null, $includeKeyValue = null, ?LoggerInterface $logger=null)
     {
         $xref = new Xref(UrlXrefResolver::getType(), $inputUrl);
         return $this->compileXref($xref, $includeType, $includeKeyValue, $logger);

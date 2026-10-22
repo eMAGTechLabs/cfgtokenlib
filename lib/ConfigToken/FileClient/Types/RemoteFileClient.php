@@ -2,7 +2,6 @@
 
 namespace ConfigToken\FileClient\Types;
 
-
 use ConfigToken\ConnectionSettings\Types\RemoteFileConnectionSettings;
 use ConfigToken\FileClient\Exception\FileClientConnectionException;
 
@@ -50,7 +49,6 @@ class RemoteFileClient extends AbstractFileClient
         $content = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        curl_close($ch);
 
         if ($httpCode == 404) {
             throw new FileClientConnectionException(

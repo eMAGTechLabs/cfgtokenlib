@@ -8,7 +8,7 @@ namespace ConfigToken\TokenFilter\Exception;
  */
 class UnknownFilterException extends \Exception
 {
-    public function __construct($filterName = "", $scope = "", $code = 0, \Exception $previous = null)
+    public function __construct($filterName = "", $scope = "", $code = 0, ?\Exception $previous = null)
     {
         if ($scope == "") {
             $message = sprintf('Unknown filter "%s".', $filterName);

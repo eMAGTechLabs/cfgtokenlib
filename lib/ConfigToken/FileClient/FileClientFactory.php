@@ -54,7 +54,7 @@ class FileClientFactory
         throw new UnknownServerTypeException($serverType);
     }
 
-    public static function make($serverType, ConnectionSettingsInterface $connectionSettings = null)
+    public static function make($serverType, ?ConnectionSettingsInterface $connectionSettings = null)
     {
         if (!static::isRegistered($serverType)) {
             throw new UnknownServerTypeException($serverType);

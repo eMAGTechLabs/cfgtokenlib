@@ -27,7 +27,7 @@ class TokenCollection implements \IteratorAggregate
     /**
      * @param Token[] $tokens Array of Token with tokenString as keys.
      */
-    public function __construct(array $tokens = null)
+    public function __construct(?array $tokens = null)
     {
         if (isset($tokens)) {
             $this->tokens = $tokens;
@@ -62,7 +62,8 @@ class TokenCollection implements \IteratorAggregate
      * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
      * @return \Traversable An instance of an object implementing <b>Iterator</b> or <b>Traversable</b>
      */
-    public function getIterator(): \Traversable
+    #[\ReturnTypeWillChange]
+    public function getIterator()
     {
         return new \ArrayIterator($this->tokens);
     }
@@ -356,7 +357,7 @@ class TokenCollection implements \IteratorAggregate
      * @return $this
      */
     public function resolve(TokenResolverInterface $tokenResolver,
-                            $ignoreUnknownTokens = null, $ignoreUnknownFilters = null, LoggerInterface $logger=null)
+                            $ignoreUnknownTokens = null, $ignoreUnknownFilters = null, ?LoggerInterface $logger=null)
     {
         if (is_null($ignoreUnknownTokens)) {
             $ignoreUnknownTokens = $tokenResolver->getIgnoreUnknownTokens();

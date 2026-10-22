@@ -101,7 +101,7 @@ class LocalFileXrefResolver extends AbstractXrefResolver
      * @param LoggerInterface|null $logger
      * @throws XrefResolverFetchException
      */
-    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null, $headers=array())
+    public static function resolve(Xref $xref, $force = false, ?LoggerInterface $logger=null, $headers=array())
     {
         if ($xref->isResolved() && (!$force)) {
             return;

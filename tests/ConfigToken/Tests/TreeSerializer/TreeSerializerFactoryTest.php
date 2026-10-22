@@ -6,7 +6,7 @@ use ConfigToken\Tests\TreeSerializer\Types\ValidCustomTreeSerializer;
 use ConfigToken\TreeSerializer\TreeSerializerFactory;
 
 
-class TreeSerializerFactoryTest extends \PHPUnit_Framework_TestCase
+class TreeSerializerFactoryTest extends \PHPUnit\Framework\TestCase
 {
     public function testRegister()
     {
@@ -19,29 +19,26 @@ class TreeSerializerFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($serializer, TreeSerializerFactory::getByContentType($serializer->getContentType()));
     }
 
-    /**
-     * @expectedException \ConfigToken\Exception\AlreadyRegisteredException
-     */
     public function testAlreadyRegistered()
     {
+        $this->expectException(\ConfigToken\Exception\AlreadyRegisteredException::class);
+
         $serializer = new ValidCustomTreeSerializer();
         TreeSerializerFactory::register($serializer);
         TreeSerializerFactory::register($serializer);
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\UnknownContentTypeException
-     */
     public function testUnknownContentType()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\UnknownContentTypeException::class);
+
         TreeSerializerFactory::getByContentType('rubbish');
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\UnknownFileExtensionException
-     */
     public function testUnknownFileExtension()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\UnknownFileExtensionException::class);
+
         TreeSerializerFactory::getByFileExtension('rubbish');
     }
 }

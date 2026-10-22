@@ -2,7 +2,6 @@
 
 namespace ConfigToken\FileClient\Types;
 
-
 use ConfigToken\ConnectionSettings\Types\GitLabRepoConnectionSettings;
 use ConfigToken\FileClient\Exception\FileClientConnectionException;
 use ConfigToken\FileUtils;
@@ -55,8 +54,6 @@ class GitLabRepoClient extends AbstractFileClient
         $content = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        curl_close($ch);
-
         if ($httpCode != 200) {
             throw new FileClientConnectionException(
                 sprintf(
@@ -73,5 +70,4 @@ class GitLabRepoClient extends AbstractFileClient
         $contentType = FileUtils::getContentTypeFromFileName($fileName);
         return array($contentType, $content);
     }
-
 }

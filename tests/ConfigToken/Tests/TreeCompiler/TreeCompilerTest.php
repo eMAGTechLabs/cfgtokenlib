@@ -6,15 +6,16 @@ namespace ConfigToken\Tests\TreeCompiler;
 use ConfigToken\TreeCompiler;
 use ConfigToken\TreeCompiler\Xref;
 
-class TreeCompilerTest extends \PHPUnit_Framework_TestCase
+class TreeCompilerTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @expectedException \ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException
-     * @expectedExceptionMessage Token resolver definition at index 0 for Xref key "dep5" is missing the "type" type identifier key.
      * {"options":{"token-prefix":"{{","token-suffix":"}}"},"values":{"here":"resolved"}}
      */
     public function testTokenResolverDefinitionValidator1()
     {
+        $this->expectException(\ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException::class);
+        $this->expectExceptionMessage('Token resolver definition at index 0 for Xref key "dep5" is missing the "type" type identifier key.');
+
         $xrefDep5 = new Xref('file', '/dep5.json');
         $xrefDep5->setData(
             array(
@@ -63,12 +64,11 @@ class TreeCompilerTest extends \PHPUnit_Framework_TestCase
         $treeCompiler->compileXref($xrefDep4);
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException
-     * @expectedExceptionMessage Token resolver definition at index 0 for Xref key "dep5" must be an associative array.
-     */
     public function testTokenResolverDefinitionValidator2()
     {
+        $this->expectException(\ConfigToken\TreeCompiler\Exception\TokenResolverDefinitionException::class);
+        $this->expectExceptionMessage('Token resolver definition at index 0 for Xref key "dep5" must be an associative array.');
+
         $xrefDep5 = new Xref('file', '/dep5.json');
         $xrefDep5->setData(
             array(

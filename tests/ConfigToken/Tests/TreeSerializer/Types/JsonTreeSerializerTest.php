@@ -5,7 +5,7 @@ namespace ConfigToken\Tests\TreeSerializer\Types;
 use ConfigToken\TreeSerializer\Types\JsonTreeSerializer;
 
 
-class JsonTreeSerializerTest extends \PHPUnit_Framework_TestCase
+class JsonTreeSerializerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider jsonDataProvider
@@ -29,11 +29,10 @@ class JsonTreeSerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data, $deserialized);
     }
 
-    /**
-     * @expectedException \ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException
-     */
     public function testDeserializeException()
     {
+        $this->expectException(\ConfigToken\TreeSerializer\Exception\TreeSerializerSyntaxException::class);
+
         $malformed = '{"a":[0,1,2,],}';
         JsonTreeSerializer::deserialize($malformed);
     }

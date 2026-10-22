@@ -28,7 +28,7 @@ class RemoteFileConnectionSettings extends GenericConnectionSettings
     /**
      * @param array|null $parameters
      */
-    public function __construct(array $parameters = null)
+    public function __construct(?array $parameters = null)
     {
         parent::__construct($parameters);
         if (!$this->hasFieldName()) {

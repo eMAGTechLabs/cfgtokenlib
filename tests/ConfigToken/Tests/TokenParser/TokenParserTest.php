@@ -11,7 +11,7 @@ use ConfigToken\TokenCollection;
 use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
 
 
-class TokenParserTest extends \PHPUnit_Framework_TestCase
+class TokenParserTest extends \PHPUnit\Framework\TestCase
 {
     public function testEmptyTokenParser()
     {

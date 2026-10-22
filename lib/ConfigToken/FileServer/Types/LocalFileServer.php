@@ -2,7 +2,6 @@
 
 namespace ConfigToken\FileServer;
 
-
 use ConfigToken\ConnectionSettings\Types\LocalFileConnectionSettings;
 use ConfigToken\FileUtils;
 
@@ -60,7 +59,6 @@ class LocalFileServer extends AbstractFileServer
     {
         $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
         $contentType = finfo_file($fileInfo, $filePath);
-        finfo_close($fileInfo);
         if ($contentType === false) {
             $contentType = 'application/octet-stream';
         } elseif (($contentType == 'text/plain') && (strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) == 'json')) {

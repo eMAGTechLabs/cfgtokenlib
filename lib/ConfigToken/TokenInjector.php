@@ -19,7 +19,7 @@ class TokenInjector
      * @throws UnknownTokenSourceException
      * @return string
      */
-    public static function injectString($string, TokenCollection $tokens, $checkHash = False, LoggerInterface $logger=null) {
+    public static function injectString($string, TokenCollection $tokens, $checkHash = False, ?LoggerInterface $logger=null) {
         if ($checkHash) {
             $hash = md5($string);
             if ($tokens->hasSourceHash() && ($tokens->getSourceHash() !== $hash)) {

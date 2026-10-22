@@ -8,7 +8,7 @@ use ConfigToken\ConnectionSettings\ConnectionSettingsInterface;
 class ConnectionSettingsException extends \Exception
 {
     public function __construct(ConnectionSettingsInterface $connectionSettings, $message = "", $code = 0,
-                                \Exception $previous = null)
+                                ?\Exception $previous = null)
     {
         $message = sprintf(
             '%s: Invalid connection settings %s. %s',

@@ -27,7 +27,7 @@ class InlineXrefResolver extends AbstractXrefResolver
      * @param array $headers
      * @throws \Exception
      */
-    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null, $headers=array())
+    public static function resolve(Xref $xref, $force = false, ?LoggerInterface $logger=null, $headers=array())
     {
         $xref->setResolved(true);
     }

@@ -10,7 +10,6 @@ use ConfigToken\TreeCompiler\XrefResolver\Exception\XrefResolverFetchException;
 use ConfigToken\TreeCompiler\Xref;
 use ConfigToken\TreeSerializer\TreeSerializerFactory;
 
-
 class UrlXrefResolver extends AbstractXrefResolver
 {
     const EVENT_ID_RESOLVE_URL = 'resolve-url';
@@ -41,7 +40,7 @@ class UrlXrefResolver extends AbstractXrefResolver
      * @throws \ConfigToken\TreeSerializer\Exception\UnknownContentTypeException
      * @throws \ConfigToken\TreeSerializer\Exception\UnknownFileExtensionException
      */
-    public static function resolve(Xref $xref, $force = false, LoggerInterface $logger=null, $headers=array())
+    public static function resolve(Xref $xref, $force = false, ?LoggerInterface $logger=null, $headers=array())
     {
         if ($xref->isResolved() && (!$force)) {
             return;
@@ -88,8 +87,6 @@ class UrlXrefResolver extends AbstractXrefResolver
 
             $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            curl_close($ch);
         }
 
         if ($httpCode != 200) {

@@ -9,7 +9,7 @@ use ConfigToken\TokenResolver\Types\OnDemandTokenResolver;
 use ConfigToken\TreeCompiler;
 use ConfigToken\TreeCompiler\Xref;
 
-class OnDemandTokenResolverTest extends \PHPUnit_Framework_TestCase
+class OnDemandTokenResolverTest extends \PHPUnit\Framework\TestCase
 {
     protected $onDemandTokenValues;
 

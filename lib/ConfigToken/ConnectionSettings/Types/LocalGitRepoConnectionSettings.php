@@ -22,7 +22,7 @@ class LocalGitRepoConnectionSettings extends GitRepoConnectionSettings
     /**
      * @param array|null $parameters
      */
-    public function __construct(array $parameters = null)
+    public function __construct(?array $parameters = null)
     {
         parent::__construct($parameters);
         if (!$this->hasGitExecutable()) {

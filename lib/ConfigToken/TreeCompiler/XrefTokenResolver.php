@@ -33,7 +33,7 @@ class XrefTokenResolver
     /** @var integer */
     protected $sourceXrefPosition;
 
-    public function __construct(TokenResolverInterface $tokenResolver = null)
+    public function __construct(?TokenResolverInterface $tokenResolver = null)
     {
         $this->setTokenResolver($tokenResolver);
     }
@@ -412,7 +412,7 @@ class XrefTokenResolver
         return $this->tokenParser;
     }
 
-    public function resolve(TokenCollection $tokens, LoggerInterface $logger=null)
+    public function resolve(TokenCollection $tokens, ?LoggerInterface $logger=null)
     {
         $tokens->resolve($this->tokenResolver, null, $this->ignoreUnknownFilters, $logger);
         return $this;

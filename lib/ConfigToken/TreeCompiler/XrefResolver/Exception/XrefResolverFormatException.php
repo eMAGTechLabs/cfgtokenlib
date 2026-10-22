@@ -7,7 +7,7 @@ use ConfigToken\TreeCompiler\Xref;
 
 class XrefResolverFormatException extends \Exception
 {
-    public function __construct(Xref $xref, $message = "", $code = 0, \Exception $previous = null)
+    public function __construct(Xref $xref, $message = "", $code = 0, ?\Exception $previous = null)
     {
         if ($xref->hasLocation()) {
             $message = sprintf(

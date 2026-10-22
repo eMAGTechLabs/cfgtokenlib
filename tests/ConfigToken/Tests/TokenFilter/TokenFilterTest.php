@@ -7,7 +7,7 @@ use ConfigToken\TokenParser;
 use ConfigToken\TokenResolver\Types\RegisteredTokenResolver;
 
 
-class TokenFilterTest extends \PHPUnit_Framework_TestCase
+class TokenFilterTest extends \PHPUnit\Framework\TestCase
 {
     public function testCustomFilter()
     {
@@ -29,27 +29,24 @@ class TokenFilterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('default', TokenFilterFactory::getFilteredValue('unknown', 'value', true, 'default'));
     }
 
-    /**
-     * @expectedException \ConfigToken\TokenFilter\Exception\UnknownFilterException
-     */
     public function testUnknownFilterExceptionForFilteredValue()
     {
+        $this->expectException(\ConfigToken\TokenFilter\Exception\UnknownFilterException::class);
+
         TokenFilterFactory::getFilteredValue('unknown', 'value');
     }
 
-    /**
-     * @expectedException \ConfigToken\TokenFilter\Exception\UnknownFilterException
-     */
     public function testUnknownFilterException()
     {
+        $this->expectException(\ConfigToken\TokenFilter\Exception\UnknownFilterException::class);
+
         TokenFilterFactory::getByName('unknown');
     }
 
-    /**
-     * @expectedException \ConfigToken\Exception\AlreadyRegisteredException
-     */
     public function testAlreadyRegistered()
     {
+        $this->expectException(\ConfigToken\Exception\AlreadyRegisteredException::class);
+
         $tokenFilter = new CustomTokenFilter();
         TokenFilterFactory::register($tokenFilter);
         TokenFilterFactory::register($tokenFilter);

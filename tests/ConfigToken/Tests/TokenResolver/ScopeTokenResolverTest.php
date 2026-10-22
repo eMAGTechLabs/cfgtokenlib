@@ -6,13 +6,13 @@ use ConfigToken\TokenParser;
 use ConfigToken\TokenResolver\Types\ScopeTokenResolver;
 
 
-class ScopeTokenResolverTest extends  \PHPUnit_Framework_TestCase
+class ScopeTokenResolverTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @expectedException \ConfigToken\TokenResolver\Exception\OutOfScopeException
-     */
+
     public function testOutOfScopeException()
     {
+        $this->expectException(\ConfigToken\TokenResolver\Exception\OutOfScopeException::class);
+
         $scope = array(
             'a' => 'value of a',
         );
@@ -30,11 +30,10 @@ class ScopeTokenResolverTest extends  \PHPUnit_Framework_TestCase
         $tokens->resolve($tokenResolver);
     }
 
-    /**
-     * @expectedException \ConfigToken\TokenResolver\Exception\UnknownTokenException
-     */
     public function testUnknownTokenException()
     {
+        $this->expectException(\ConfigToken\TokenResolver\Exception\UnknownTokenException::class);
+
         $scope = array(
             'a' => 'value of a',
         );
@@ -51,11 +50,10 @@ class ScopeTokenResolverTest extends  \PHPUnit_Framework_TestCase
         $tokens->resolve($tokenResolver, false);
     }
 
-    /**
-     * @expectedException \ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException
-     */
     public function testScopeTokenValueSerializationException()
     {
+        $this->expectException(\ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException::class);
+
         $scope = array(
             'a' => 'value of a',
             'b' => array('b'),
@@ -74,11 +72,10 @@ class ScopeTokenResolverTest extends  \PHPUnit_Framework_TestCase
         $tokens->resolve($tokenResolver, false);
     }
 
-    /**
-     * @expectedException \ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException
-     */
     public function testCustomSerializerException()
     {
+        $this->expectException(\ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException::class);
+
         $scope = array(
             'a' => 'value of a',
             'b' => array('c'),
@@ -98,11 +95,10 @@ class ScopeTokenResolverTest extends  \PHPUnit_Framework_TestCase
         $tokens->resolve($tokenResolver, false);
     }
 
-    /**
-     * @expectedException \ConfigToken\TokenResolver\Exception\TokenFormatException
-     */
     public function testTokenFormatException()
     {
+        $this->expectException(\ConfigToken\TokenResolver\Exception\TokenFormatException::class);
+
         $scope = array(
             'a' => 'value of a',
         );

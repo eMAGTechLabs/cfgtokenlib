@@ -8,7 +8,7 @@ use ConfigToken\TokenResolver\ScopeValueSerializers\JsonScopeTokenValueSerialize
 use ConfigToken\TokenResolver\Types\JsonScopeTokenResolver;
 
 
-class JsonScopeTokenResolverTest extends \PHPUnit_Framework_TestCase
+class JsonScopeTokenResolverTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testScopeResolver()
@@ -109,11 +109,10 @@ class JsonScopeTokenResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedString, $result);
     }
 
-    /**
-     * @expectedException \ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException
-     */
     public function testUnserializable()
     {
+        $this->expectException(\ConfigToken\TokenResolver\Exception\ScopeTokenValueSerializationException::class);
+
         $scope = array(
             'a' => fopen('php://stdout', 'w'),
         );

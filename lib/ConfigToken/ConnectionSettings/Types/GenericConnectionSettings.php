@@ -13,7 +13,7 @@ class GenericConnectionSettings implements ConnectionSettingsInterface
     /**
      * @param array|null $parameters
      */
-    public function __construct(array $parameters = null)
+    public function __construct(?array $parameters = null)
     {
         if (isset($parameters)) {
             $this->setParameters($parameters);
